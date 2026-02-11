@@ -1,36 +1,81 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Form2X - Modern Modular Documentation
 
-## Getting Started
+**Form2X** is a modular suite of hyper-structured document generators designed to convert simple forms into high-fidelity, industry-standard outputs with precision and speed.
 
-First, run the development server:
+## 🚀 Solutions
 
+Form2X currently provides two specialized builders:
+
+### 1. Form2Resume
+*   **Purpose**: Create professional, ATS-optimized resumes in minutes.
+*   **Target**: Engineered for engineers and professionals.
+*   **Key Features**:
+    *   Clean, minimalist design.
+    *   ATS-friendly formatting to pass through recruiter screening.
+    *   Hyper-structured data entry for consistent results.
+
+### 2. Form2Research
+*   **Purpose**: Generate IEEE standard research papers.
+*   **Key Features**:
+    *   Full support for **LaTeX equations**.
+    *   Automatic citation management.
+    *   Figure and table integration.
+    *   Industry-standard paper formatting.
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)
+- **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Equations**: [KaTeX](https://katex.org/) (LaTeX Engine)
+- **UI Components**: Radix UI & Shadcn/UI
+
+---
+
+## 🛠 Setup & Installation
+
+Follow these steps to get the project running locally:
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
+### 2. Environment Variables
+*(Optional: Add any specific environment variables here if needed in the future)*
+
+---
+
+## 🏃‍♂️ Running the App
+
+### Development Mode
+Run the development server:
+```bash
+npm run dev
+```
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Production Build
+Build the application for production:
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Start Production Server
+```bash
+npm run start
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 📄 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is private and for personal use.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 👨‍💻 Developed By
+**Jaber Al Jabri**
+[LinkedIn](http://www.linkedin.com/in/jaber-aljabri) | [GitHub](https://github.com/JaberAlJ)
