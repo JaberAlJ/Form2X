@@ -32,7 +32,8 @@ import {
     ChevronDown,
     ChevronUp,
     DownloadCloud,
-    DownloadIcon
+    DownloadIcon,
+    AlertCircle
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -43,6 +44,9 @@ import { exportToHtml, exportToJson, printToPdf } from './utils/export';
 import { InputField, ImageUploader, TableEditor } from '@/components/ui/FormFields';
 import { FormSection, EntryWrapper } from '@/components/ui/Containers';
 import { StyleOption } from '@/components/ui/StyleOption';
+
+// Validation Helpers
+const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
 const ResearchPaperBuilder: React.FC = () => {
     const [data, setData] = useState<PaperData>(INITIAL_PAPER_DATA);
@@ -78,6 +82,44 @@ const ResearchPaperBuilder: React.FC = () => {
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
     }, [activeTab]);
+
+    const errors = useMemo(() => {
+        const e: any = {
+            title: '',
+            authors: [],
+            abstract: '',
+            sections: [],
+            references: []
+        };
+
+        if (!data.title.trim()) e.title = "Required";
+        if (!data.abstract.trim()) e.abstract = "Required";
+
+        e.authors = data.authors.map(author => ({
+            name: !author.name.trim() ? "Required" : "",
+            email: author.email && !validateEmail(author.email) ? "Invalid format" : ""
+        }));
+
+        e.sections = data.sections.map(section => ({
+            title: !section.title.trim() ? "Required" : ""
+        }));
+
+        e.references = data.references.map(ref => ({
+            text: !ref.text.trim() ? "Required" : ""
+        }));
+
+        return e;
+    }, [data]);
+
+    const hasAnyErrors = useMemo(() => {
+        const check = (obj: any): boolean => {
+            if (typeof obj === 'string') return obj !== "";
+            if (Array.isArray(obj)) return obj.some(check);
+            if (typeof obj === 'object' && obj !== null) return Object.values(obj).some(check);
+            return false;
+        };
+        return check(errors);
+    }, [errors]);
 
     const updateField = <K extends keyof PaperData>(field: K, value: PaperData[K]) => {
         setData(prev => ({ ...prev, [field]: value }));
@@ -145,6 +187,11 @@ const ResearchPaperBuilder: React.FC = () => {
     };
 
     const performExport = async (type: 'html' | 'json') => {
+        if (hasAnyErrors) {
+            alert("Please fix the errors in your paper before exporting.");
+            return;
+        }
+
         setIsExporting(true);
         await new Promise(r => setTimeout(r, 800));
         try {
@@ -224,26 +271,38 @@ const ResearchPaperBuilder: React.FC = () => {
 
                 {sidebarTab === 'content' && (
                     <div className="flex-1 overflow-y-auto p-6 space-y-10 bg-white dark:bg-slate-900">
+                        {hasAnyErrors && (
+                            <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
+                                <AlertCircle className="w-5 h-5 shrink-0" />
+                                <div className="flex-1">
+                                    <p className="text-xs font-bold uppercase tracking-wide">Review Required</p>
+                                    <p className="text-[11px] opacity-90">Please complete all required fields marked in red.</p>
+                                </div>
+                            </div>
+                        )}
                         <section className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-indigo-100 dark:border-indigo-900 pb-2"><Heading1 className="w-5 h-5 text-indigo-600" /><h2 className="font-bold text-slate-800 dark:text-slate-200">Front Matter</h2></div>
-                            <InputField label="Paper Title" value={data.title} onChange={v => updateField('title', v)} placeholder="Full technical title..." />
+                            <InputField required label="Paper Title" value={data.title} onChange={v => updateField('title', v)} placeholder="Full technical title..." error={errors.title} />
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Authors & Affiliations</label><button onClick={addAuthor} className="text-[10px] font-bold text-indigo-600 uppercase flex items-center gap-1"><Plus className="w-3 h-3" /> Add Author</button></div>
                                 {data.authors.map((author, idx) => (
                                     <EntryWrapper key={author.id} onRemove={() => removeAuthor(author.id)}>
-                                        <InputField label="Full Name" value={author.name} onChange={v => updateAuthor(author.id, 'name', v)} />
+                                        <InputField required label="Full Name" value={author.name} onChange={v => updateAuthor(author.id, 'name', v)} error={errors.authors[idx]?.name} />
                                         <InputField label="Department" value={author.dept} onChange={v => updateAuthor(author.id, 'dept', v)} />
                                         <InputField label="Organization / University" value={author.org} onChange={v => updateAuthor(author.id, 'org', v)} />
                                         <div className="grid grid-cols-2 gap-2">
                                             <InputField label="Location (City, Country)" value={author.location} onChange={v => updateAuthor(author.id, 'location', v)} />
-                                            <InputField label="Email" value={author.email} onChange={v => updateAuthor(author.id, 'email', v)} />
+                                            <InputField label="Email" value={author.email} onChange={v => updateAuthor(author.id, 'email', v)} error={errors.authors[idx]?.email} />
                                         </div>
                                     </EntryWrapper>
                                 ))}
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Abstract</label>
-                                <textarea value={data.abstract} onChange={e => updateField('abstract', e.target.value)} rows={4} className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none focus:ring-2 focus:ring-indigo-500/20 transition-all resize-none" />
+                                <div className="flex justify-between items-center mb-1">
+                                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Abstract<span className="text-red-500"> *</span></label>
+                                    {errors.abstract && <span className="text-[9px] font-bold text-red-500 uppercase">{errors.abstract}</span>}
+                                </div>
+                                <textarea value={data.abstract} onChange={e => updateField('abstract', e.target.value)} rows={4} className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`} />
                             </div>
                             <InputField label="Keywords" value={data.keywords} onChange={v => updateField('keywords', v)} placeholder="Separated by commas..." />
                         </section>
@@ -252,7 +311,7 @@ const ResearchPaperBuilder: React.FC = () => {
                             {data.sections.map((section, idx) => (
                                 <EntryWrapper key={section.id} onRemove={() => removeSection(section.id)} onMoveUp={idx > 0 ? () => moveSection(idx, 'up') : undefined} onMoveDown={idx < data.sections.length - 1 ? () => moveSection(idx, 'down') : undefined}>
                                     <div className="grid grid-cols-4 gap-2">
-                                        <div className="col-span-3"><InputField label="Section Title" value={section.title} onChange={v => updateSection(section.id, 'title', v)} /></div>
+                                        <div className="col-span-3"><InputField required label="Section Title" value={section.title} onChange={v => updateSection(section.id, 'title', v)} error={errors.sections[idx]?.title} /></div>
                                         <div className="space-y-1">
                                             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Level</label>
                                             <select value={section.level} onChange={e => updateSection(section.id, 'level', parseInt(e.target.value))} className="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-200 rounded-md text-sm outline-none">
@@ -330,7 +389,7 @@ const ResearchPaperBuilder: React.FC = () => {
                                 <div key={ref.id} className="flex gap-2 items-start group">
                                     <div className="pt-3 font-bold text-xs text-slate-300">[{idx + 1}]</div>
                                     <div className="flex-1 space-y-1">
-                                        <InputField label={`Ref ID: ${ref.id}`} value={ref.text} onChange={v => updateReference(ref.id, v)} />
+                                        <InputField required label={`Ref ID: ${ref.id}`} value={ref.text} onChange={v => updateReference(ref.id, v)} error={errors.references[idx]?.text} />
                                     </div>
                                     <button onClick={() => removeReference(ref.id)} className="p-2 mt-4 text-slate-200 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
                                 </div>
