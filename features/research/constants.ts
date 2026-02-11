@@ -80,7 +80,7 @@ export const INITIAL_PAPER_DATA: PaperData = {
                 {
                     id: 'f1',
                     caption: "System Architecture of the Edge Inference Pipeline",
-                    imageData: ""
+                    imageData: "https://www.slideteam.net/wp/wp-content/uploads/2023/07/Data-Warehouse-Operational-System-Architecture-2.png"
                 }
             ]
         }
