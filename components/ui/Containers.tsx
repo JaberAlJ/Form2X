@@ -47,7 +47,7 @@ export const EntryWrapper: React.FC<EntryWrapperProps> = ({ onRemove, onMoveUp, 
                 <Trash2 className="w-4 h-4" />
             </button>
         </div>
-        <div className="pt-2 group-hover:pt-0 transition-all">
+        <div className="pt-4 transition-all">
             {children}
         </div>
     </div>
