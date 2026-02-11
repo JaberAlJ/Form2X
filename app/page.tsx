@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, BookOpen, ArrowRight, Zap, ShieldCheck, Cpu, Sun, Moon } from 'lucide-react';
+import { FileText, BookOpen, ArrowRight, Zap, ShieldCheck, Cpu, Sun, Moon, Github, Linkedin } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
 export default function LandingPage() {
@@ -118,9 +118,37 @@ export default function LandingPage() {
         </div>
 
         <footer className="mt-32 pt-12 border-t border-slate-200 dark:border-slate-800 text-center animate-in fade-in duration-1000 delay-700">
-          <p className="text-sm text-slate-400 dark:text-slate-600">
-            © {new Date().getFullYear()} Form2X. Modern Modular Documentation.
-          </p>
+          <div className="flex flex-col items-center gap-6">
+            <div className="flex items-center gap-4">
+              <a
+                href="https://github.com/JaberAlJ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-110 transition-all border border-slate-200 dark:border-slate-800"
+                aria-label="GitHub"
+              >
+                <Github className="w-5 h-5" />
+              </a>
+              <a
+                href="http://www.linkedin.com/in/jaber-aljabri"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-full bg-slate-100 dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 hover:scale-110 transition-all border border-slate-200 dark:border-slate-800"
+                aria-label="LinkedIn"
+              >
+                <Linkedin className="w-5 h-5" />
+              </a>
+            </div>
+
+            <div className="space-y-2">
+              <p className="font-bold text-slate-900 dark:text-white tracking-tight">
+                Jaber Al Jabri
+              </p>
+              <p className="text-sm text-slate-400 dark:text-slate-600">
+                © {new Date().getFullYear()} Form2X. Modern Modular Documentation.
+              </p>
+            </div>
+          </div>
         </footer>
       </main>
     </div>
