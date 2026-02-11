@@ -140,6 +140,15 @@ const ResearchPaperBuilder: React.FC = () => {
         updateField('authors', data.authors.filter(a => a.id !== id));
     };
 
+    const moveAuthor = (index: number, direction: 'up' | 'down') => {
+        const newAuthors = [...data.authors];
+        const target = direction === 'up' ? index - 1 : index + 1;
+        if (target >= 0 && target < newAuthors.length) {
+            [newAuthors[index], newAuthors[target]] = [newAuthors[target], newAuthors[index]];
+            updateField('authors', newAuthors);
+        }
+    };
+
     const addSection = () => {
         const newSection: ResearchSection = { id: Math.random().toString(36).substr(2, 9), title: '', content: '', level: 1 };
         updateField('sections', [...data.sections, newSection]);
@@ -247,7 +256,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <input type="file" ref={fileInputRef} onChange={handleImportJson} className="hidden" accept=".json" />
                         <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             <Upload className="w-4 h-4" />
@@ -255,7 +264,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <button onClick={() => performExport('json')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             <FileJson className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button
                             onClick={handleClear}
                             className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
@@ -270,7 +279,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         >
                             <Beaker className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button onClick={() => performExport('html')} className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2"><DownloadIcon className="w-4 h-4" />HTML</button>
                     </div>
                 </header>
@@ -321,7 +330,12 @@ const ResearchPaperBuilder: React.FC = () => {
                             <div className="space-y-4">
                                 <div className="flex items-center justify-between"><label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Authors & Affiliations</label><button onClick={addAuthor} className="text-[10px] font-bold text-indigo-600 uppercase flex items-center gap-1"><Plus className="w-3 h-3" /> Add Author</button></div>
                                 {data.authors.map((author, idx) => (
-                                    <EntryWrapper key={author.id} onRemove={() => removeAuthor(author.id)}>
+                                    <EntryWrapper
+                                        key={author.id}
+                                        onRemove={() => removeAuthor(author.id)}
+                                        onMoveUp={idx > 0 ? () => moveAuthor(idx, 'up') : undefined}
+                                        onMoveDown={idx < data.authors.length - 1 ? () => moveAuthor(idx, 'down') : undefined}
+                                    >
                                         <InputField required label="Full Name" value={author.name} onChange={v => updateAuthor(author.id, 'name', v)} error={errors.authors[idx]?.name} />
                                         <InputField label="Department" value={author.dept} onChange={v => updateAuthor(author.id, 'dept', v)} />
                                         <InputField label="Organization / University" value={author.org} onChange={v => updateAuthor(author.id, 'org', v)} />
@@ -337,7 +351,20 @@ const ResearchPaperBuilder: React.FC = () => {
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Abstract<span className="text-red-500"> *</span></label>
                                     {errors.abstract && <span className="text-[9px] font-bold text-red-500 uppercase">{errors.abstract}</span>}
                                 </div>
-                                <textarea value={data.abstract} onChange={e => updateField('abstract', e.target.value)} rows={4} className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`} />
+                                <textarea
+                                    value={data.abstract}
+                                    onChange={e => {
+                                        updateField('abstract', e.target.value);
+                                        e.target.style.height = 'inherit';
+                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                    }}
+                                    onFocus={e => {
+                                        e.target.style.height = 'inherit';
+                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                    }}
+                                    rows={4}
+                                    className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`}
+                                />
                             </div>
                             <InputField label="Keywords" value={data.keywords} onChange={v => updateField('keywords', v)} placeholder="Separated by commas..." />
                         </section>
@@ -358,7 +385,20 @@ const ResearchPaperBuilder: React.FC = () => {
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Content</label>
-                                        <textarea value={section.content} onChange={e => updateSection(section.id, 'content', e.target.value)} rows={3} className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none" />
+                                        <textarea
+                                            value={section.content}
+                                            onChange={e => {
+                                                updateSection(section.id, 'content', e.target.value);
+                                                e.target.style.height = 'inherit';
+                                                e.target.style.height = `${e.target.scrollHeight}px`;
+                                            }}
+                                            onFocus={e => {
+                                                e.target.style.height = 'inherit';
+                                                e.target.style.height = `${e.target.scrollHeight}px`;
+                                            }}
+                                            rows={3}
+                                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
+                                        />
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -406,11 +446,22 @@ const ResearchPaperBuilder: React.FC = () => {
                                     {section.equations?.map((eq, eIdx) => (
                                         <div key={eq.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
                                             <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-indigo-500">EQUATION {eIdx + 1}</span><button onClick={() => updateSection(section.id, 'equations', section.equations?.filter(e => e.id !== eq.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button></div>
-                                            <textarea value={eq.latex} onChange={e => {
-                                                const newEqs = [...(section.equations || [])];
-                                                newEqs[eIdx].latex = e.target.value;
-                                                updateSection(section.id, 'equations', newEqs);
-                                            }} placeholder="\mathcal{L} = \sum w_i^2..." className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-mono outline-none" />
+                                            <textarea
+                                                value={eq.latex}
+                                                onChange={e => {
+                                                    const newEqs = [...(section.equations || [])];
+                                                    newEqs[eIdx].latex = e.target.value;
+                                                    updateSection(section.id, 'equations', newEqs);
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                onFocus={e => {
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                placeholder="\mathcal{L} = \sum w_i^2..."
+                                                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-mono outline-none resize-none transition-all"
+                                            />
                                         </div>
                                     ))}
                                 </EntryWrapper>

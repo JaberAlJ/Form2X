@@ -464,7 +464,7 @@ const ResumeBuilder: React.FC = () => {
                             >
                                 <Beaker className="w-4 h-4" />
                             </button>
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                             <button
                                 disabled={isExporting}
                                 onClick={() => performExport('html')}
