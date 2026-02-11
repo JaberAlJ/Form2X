@@ -40,6 +40,7 @@ import {
     Sun,
     Moon
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 import { INITIAL_RESUME_DATA } from './constants';
 import { ResumeData, SectionType, StyleConfig } from './types';
@@ -67,27 +68,19 @@ const ResumeBuilder: React.FC = () => {
     const [zoom, setZoom] = useState(0.8);
     const [previewHeight, setPreviewHeight] = useState(1056);
     const [isExporting, setIsExporting] = useState<boolean>(false);
-    const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+    const { theme, setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
     const previewRef = useRef<HTMLDivElement>(null);
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Avoid hydration mismatch
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setIsDarkMode(savedTheme === 'dark' || (!savedTheme && prefersDark));
+        setMounted(true);
     }, []);
 
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDarkMode]);
+    const isDarkMode = resolvedTheme === 'dark';
 
     useEffect(() => {
         const handleResize = () => {
@@ -377,6 +370,12 @@ const ResumeBuilder: React.FC = () => {
 
     const isPreviewOnly = activeTab === 'preview';
 
+    if (!mounted) {
+        return (
+            <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300" />
+        );
+    }
+
     return (
         <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors duration-300">
             <aside className={`
@@ -390,7 +389,7 @@ const ResumeBuilder: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-3">
                         <button
-                            onClick={() => setIsDarkMode(!isDarkMode)}
+                            onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
                             className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"
                             title={isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode"}
                         >

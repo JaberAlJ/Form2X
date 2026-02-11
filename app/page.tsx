@@ -1,9 +1,41 @@
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FileText, BookOpen, ArrowRight, Zap, ShieldCheck, Cpu } from 'lucide-react';
+import { FileText, BookOpen, ArrowRight, Zap, ShieldCheck, Cpu, Sun, Moon } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 export default function LandingPage() {
+  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch by only rendering once mounted
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden" />
+    );
+  }
+
+  const isDarkMode = resolvedTheme === 'dark';
+
+  const toggleTheme = () => {
+    setTheme(isDarkMode ? 'light' : 'dark');
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950 transition-colors duration-500 overflow-x-hidden">
+      {/* Theme Toggle */}
+      <button
+        onClick={toggleTheme}
+        className="fixed top-6 right-6 z-50 p-3 bg-white/80 dark:bg-slate-900/80 backdrop-blur rounded-full border border-slate-200 dark:border-slate-800 shadow-xl hover:scale-105 active:scale-95 transition-all text-slate-600 dark:text-slate-400"
+      >
+        {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      </button>
+
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/10 blur-[120px] rounded-full animate-pulse"></div>
@@ -41,7 +73,7 @@ export default function LandingPage() {
           {/* Form2Resume Card */}
           <Link href="/resume" className="group relative block animate-in fade-in slide-in-from-left-8 duration-1000 delay-400">
             <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:border-blue-500/50 transition-all duration-500 overflow-hidden">
+            <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:shadow-blue-500/50 group-hover:border-blue-500/50 transition-all duration-500 overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
                 <FileText className="w-32 h-32" />
               </div>
@@ -64,7 +96,7 @@ export default function LandingPage() {
           {/* Form2Research Card */}
           <Link href="/research" className="group relative block animate-in fade-in slide-in-from-right-8 duration-1000 delay-500">
             <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-            <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:border-indigo-500/50 transition-all duration-500 overflow-hidden">
+            <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:shadow-indigo-500/50 group-hover:border-indigo-500/50 transition-all duration-500 overflow-hidden">
               <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
                 <BookOpen className="w-32 h-32" />
               </div>

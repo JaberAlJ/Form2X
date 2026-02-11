@@ -34,6 +34,7 @@ import {
     DownloadCloud,
     DownloadIcon
 } from 'lucide-react';
+import { useTheme } from 'next-themes';
 
 import { INITIAL_PAPER_DATA } from './constants';
 import { PaperData, ResearchSection, Author, Reference } from './types';
@@ -49,27 +50,19 @@ const ResearchPaperBuilder: React.FC = () => {
     const [sidebarTab, setSidebarTab] = useState<'content' | 'settings'>('content');
     const [zoom, setZoom] = useState(0.8);
     const [isExporting, setIsExporting] = useState(false);
-    const [isDarkMode, setIsDarkMode] = useState(false);
+    const { theme, setTheme, resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
 
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    // Avoid hydration mismatch
     useEffect(() => {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setIsDarkMode(savedTheme === 'dark' || (!savedTheme && prefersDark));
+        setMounted(true);
     }, []);
 
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        }
-    }, [isDarkMode]);
+    const isDarkMode = resolvedTheme === 'dark';
 
     useEffect(() => {
         const handleResize = () => {
@@ -175,6 +168,12 @@ const ResearchPaperBuilder: React.FC = () => {
         reader.readAsText(file);
     };
 
+    if (!mounted) {
+        return (
+            <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors" />
+        );
+    }
+
     return (
         <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors">
             <aside className={`fixed inset-y-0 left-0 z-40 w-full md:relative flex flex-col h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all ${activeTab === 'preview' ? '-translate-x-full md:w-0 opacity-0 invisible' : 'translate-x-0 lg:w-5/12 xl:w-1/3 opacity-100 visible'}`}>
@@ -184,7 +183,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <h1 className="font-bold text-slate-800 dark:text-slate-100 italic transition-colors">Form2<span className="text-indigo-600">Research</span></h1>
                     </div>
                     <div className="flex items-center gap-2">
-                        <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
+                        <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
                         <input type="file" ref={fileInputRef} onChange={handleImportJson} className="hidden" accept=".json" />
