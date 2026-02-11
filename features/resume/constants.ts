@@ -157,3 +157,52 @@ export const INITIAL_RESUME_DATA: ResumeData = {
         textColor: 'Black'
     }
 };
+
+export const EMPTY_RESUME_DATA: ResumeData = {
+    header: {
+        fullName: "",
+        location: "",
+        phone: "",
+        email: "",
+        links: []
+    },
+    education: [],
+    experience: [],
+    projects: [],
+    certifications: [],
+    leadership: [],
+    honors: [],
+    publications: [],
+    volunteer: [],
+    skills: [],
+    enabledSections: {
+        education: true,
+        experience: true,
+        projects: true,
+        certifications: false,
+        leadership: false,
+        honors: false,
+        publications: false,
+        volunteer: false,
+        skills: true
+    },
+    sectionOrder: [
+        'education',
+        'experience',
+        'projects',
+        'certifications',
+        'leadership',
+        'honors',
+        'publications',
+        'volunteer'
+    ],
+    style: {
+        fontFamily: 'Arial',
+        baseFontSize: 11,
+        lineSpacing: 1.15,
+        marginSize: 0.75,
+        headerStyle: 'BoldAllCaps',
+        bulletStyle: '•',
+        textColor: 'Black'
+    }
+};

@@ -38,11 +38,13 @@ import {
     Upload,
     Loader2,
     Sun,
-    Moon
+    Moon,
+    Eraser,
+    Beaker
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
-import { INITIAL_RESUME_DATA } from './constants';
+import { INITIAL_RESUME_DATA, EMPTY_RESUME_DATA } from './constants';
 import { ResumeData, SectionType, StyleConfig } from './types';
 import ResumePreview from './components/ResumePreview';
 import { exportToHtml, exportToJson } from './utils/export';
@@ -351,6 +353,18 @@ const ResumeBuilder: React.FC = () => {
         e.target.value = '';
     };
 
+    const handleClear = () => {
+        if (window.confirm("Are you sure you want to clear all fields? This action cannot be undone.")) {
+            setData(EMPTY_RESUME_DATA);
+        }
+    };
+
+    const handleLoadSample = () => {
+        if (window.confirm("This will replace your current data with sample data. Continue?")) {
+            setData(INITIAL_RESUME_DATA);
+        }
+    };
+
     const performExport = async (type: 'html' | 'json') => {
         if (hasAnyErrors) {
             alert("Please fix the errors in your resume before exporting.");
@@ -396,6 +410,7 @@ const ResumeBuilder: React.FC = () => {
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
                         <div className="flex gap-1 items-center">
+                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
                             <input
                                 type="file"
                                 ref={fileInputRef}
@@ -417,7 +432,22 @@ const ResumeBuilder: React.FC = () => {
                                 className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
                                 title="Export JSON"
                             >
-                                {isExporting ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" /> : <FileJson className="w-4 h-4" />}
+                                <FileJson className="w-4 h-4" />
+                            </button>
+                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                            <button
+                                onClick={handleClear}
+                                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
+                                title="Clear All Fields"
+                            >
+                                <Eraser className="w-4 h-4" />
+                            </button>
+                            <button
+                                onClick={handleLoadSample}
+                                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors text-slate-400 hover:text-blue-500"
+                                title="Load Sample Data"
+                            >
+                                <Beaker className="w-4 h-4" />
                             </button>
                             <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
                             <button
@@ -825,7 +855,7 @@ const ResumeBuilder: React.FC = () => {
                     {activeTab === 'edit' ? 'Preview' : 'Edit'}
                 </button>
             </div>
-        </div>
+        </div >
     );
 };
 

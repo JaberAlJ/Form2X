@@ -99,3 +99,20 @@ export const INITIAL_PAPER_DATA: PaperData = {
         columnLayout: '2-column'
     }
 };
+
+export const EMPTY_PAPER_DATA: PaperData = {
+    title: "",
+    authors: [],
+    abstract: "",
+    keywords: "",
+    sections: [],
+    acknowledgment: "",
+    references: [],
+    style: {
+        fontFamily: 'Times New Roman',
+        baseFontSize: 10,
+        lineSpacing: 1.0,
+        marginSize: 0.75,
+        columnLayout: '1-column'
+    }
+};

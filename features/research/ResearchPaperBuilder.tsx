@@ -33,11 +33,13 @@ import {
     ChevronUp,
     DownloadCloud,
     DownloadIcon,
-    AlertCircle
+    AlertCircle,
+    Eraser,
+    Beaker
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
-import { INITIAL_PAPER_DATA } from './constants';
+import { INITIAL_PAPER_DATA, EMPTY_PAPER_DATA } from './constants';
 import { PaperData, ResearchSection, Author, Reference } from './types';
 import ResearchPaperPreview from './components/ResearchPaperPreview';
 import { exportToHtml, exportToJson, printToPdf } from './utils/export';
@@ -215,6 +217,18 @@ const ResearchPaperBuilder: React.FC = () => {
         reader.readAsText(file);
     };
 
+    const handleClear = () => {
+        if (window.confirm("Are you sure you want to clear all fields? This action cannot be undone.")) {
+            setData(EMPTY_PAPER_DATA);
+        }
+    };
+
+    const handleLoadSample = () => {
+        if (window.confirm("This will replace your current data with sample data. Continue?")) {
+            setData(INITIAL_PAPER_DATA);
+        }
+    };
+
     if (!mounted) {
         return (
             <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors" />
@@ -233,9 +247,30 @@ const ResearchPaperBuilder: React.FC = () => {
                         <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
                         <input type="file" ref={fileInputRef} onChange={handleImportJson} className="hidden" accept=".json" />
-                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"><Upload className="w-4 h-4" /></button>
-                        <button onClick={() => performExport('json')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"><FileJson className="w-4 h-4" /></button>
+                        <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
+                            <Upload className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => performExport('json')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
+                            <FileJson className="w-4 h-4" />
+                        </button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                        <button
+                            onClick={handleClear}
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
+                            title="Clear All Fields"
+                        >
+                            <Eraser className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={handleLoadSample}
+                            className="p-2 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 rounded-md transition-colors text-slate-400 hover:text-indigo-500"
+                            title="Load Sample Data"
+                        >
+                            <Beaker className="w-4 h-4" />
+                        </button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
                         <button onClick={() => performExport('html')} className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2"><DownloadIcon className="w-4 h-4" />HTML</button>
                     </div>
                 </header>
