@@ -1,13 +1,13 @@
 import { ResumeData } from '../types';
 
 export const exportToHtml = (data: ResumeData, isDarkMode: boolean = false) => {
-    const container = document.getElementById('resume-container');
-    if (!container) return;
+  const container = document.getElementById('resume-container');
+  if (!container) return;
 
-    const bgColor = isDarkMode ? '#0f172a' : '#f0f2f5';
-    const shadow = isDarkMode ? '0 10px 25px rgba(0,0,0,0.5)' : '0 0 10px rgba(0,0,0,0.1)';
+  const bgColor = isDarkMode ? '#0f172a' : '#f0f2f5';
+  const shadow = isDarkMode ? '0 10px 25px rgba(0,0,0,0.5)' : '0 0 10px rgba(0,0,0,0.1)';
 
-    const htmlContent = `
+  const htmlContent = `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -58,30 +58,26 @@ export const exportToHtml = (data: ResumeData, isDarkMode: boolean = false) => {
 </html>
   `;
 
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${data.header.fullName.replace(/\s+/g, '_')}_Resume.html`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const blob = new Blob([htmlContent], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${data.header.fullName.replace(/\s+/g, '_')}_Resume.html`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };
 
 export const exportToJson = (data: ResumeData) => {
-    const jsonString = JSON.stringify(data, null, 2);
-    const blob = new Blob([jsonString], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${data.header.fullName.replace(/\s+/g, '_')}_ResumeData.json`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
-};
-
-export const printToPdf = () => {
-    window.print();
+  const jsonString = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonString], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `${data.header.fullName.replace(/\s+/g, '_')}_ResumeData.json`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 };

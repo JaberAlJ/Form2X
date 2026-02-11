@@ -44,7 +44,7 @@ import {
 import { INITIAL_RESUME_DATA } from './constants';
 import { ResumeData, SectionType, StyleConfig } from './types';
 import ResumePreview from './components/ResumePreview';
-import { exportToHtml, exportToJson, printToPdf } from './utils/export';
+import { exportToHtml, exportToJson } from './utils/export';
 import { InputField, BulletPoints } from '@/components/ui/FormFields';
 import { FormSection, EntryWrapper } from '@/components/ui/Containers';
 import { StyleOption } from '@/components/ui/StyleOption';
@@ -358,7 +358,7 @@ const ResumeBuilder: React.FC = () => {
         e.target.value = '';
     };
 
-    const performExport = async (type: 'html' | 'json' | 'pdf') => {
+    const performExport = async (type: 'html' | 'json') => {
         if (hasAnyErrors) {
             alert("Please fix the errors in your resume before exporting.");
             return;
@@ -370,7 +370,6 @@ const ResumeBuilder: React.FC = () => {
         try {
             if (type === 'html') exportToHtml(data, isDarkMode);
             else if (type === 'json') exportToJson(data);
-            else if (type === 'pdf') printToPdf();
         } finally {
             setIsExporting(false);
         }
@@ -425,18 +424,11 @@ const ResumeBuilder: React.FC = () => {
                             <button
                                 disabled={isExporting}
                                 onClick={() => performExport('html')}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
+                                className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
                                 title="Export as standalone HTML file"
                             >
                                 {isExporting ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" /> : <Download className="w-4 h-4" />}
-                            </button>
-                            <button
-                                disabled={isExporting}
-                                onClick={() => performExport('pdf')}
-                                className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
-                            >
-                                {isExporting && <Loader2 className="w-3 h-3 animate-spin" />}
-                                PDF
+                                HTML
                             </button>
                         </div>
                     </div>

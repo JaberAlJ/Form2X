@@ -30,7 +30,9 @@ import {
     Upload,
     Loader2,
     ChevronDown,
-    ChevronUp
+    ChevronUp,
+    DownloadCloud,
+    DownloadIcon
 } from 'lucide-react';
 
 import { INITIAL_PAPER_DATA } from './constants';
@@ -149,13 +151,12 @@ const ResearchPaperBuilder: React.FC = () => {
         updateSection(sectionId, type, [...items, newItem]);
     };
 
-    const performExport = async (type: 'html' | 'json' | 'pdf') => {
+    const performExport = async (type: 'html' | 'json') => {
         setIsExporting(true);
         await new Promise(r => setTimeout(r, 800));
         try {
             if (type === 'html') exportToHtml(data, isDarkMode);
             else if (type === 'json') exportToJson(data);
-            else printToPdf();
         } finally {
             setIsExporting(false);
         }
@@ -189,7 +190,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <input type="file" ref={fileInputRef} onChange={handleImportJson} className="hidden" accept=".json" />
                         <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"><Upload className="w-4 h-4" /></button>
                         <button onClick={() => performExport('json')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"><FileJson className="w-4 h-4" /></button>
-                        <button onClick={() => performExport('pdf')} className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2">PDF</button>
+                        <button onClick={() => performExport('html')} className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2"><DownloadIcon className="w-4 h-4" />HTML</button>
                     </div>
                 </header>
 
