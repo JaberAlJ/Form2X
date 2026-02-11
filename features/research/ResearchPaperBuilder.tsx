@@ -364,8 +364,11 @@ const ResearchPaperBuilder: React.FC = () => {
                 </div>
             </main>
 
-            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-2 md:hidden z-50">
-                <button onClick={() => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit')} className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full font-bold shadow-2xl active:scale-95 transition-all">
+            <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-2 no-print z-50">
+                <button
+                    onClick={() => setActiveTab(activeTab === 'edit' ? 'preview' : 'edit')}
+                    className="flex items-center gap-2 px-6 py-3 bg-indigo-600 text-white rounded-full font-bold shadow-xl active:scale-95 transition-all"
+                >
                     {activeTab === 'edit' ? <Eye className="w-5 h-5" /> : <PenLine className="w-5 h-5" />}
                     {activeTab === 'edit' ? 'Preview' : 'Edit'}
                 </button>
