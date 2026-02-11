@@ -1,5 +1,6 @@
 import React from 'react';
 import { Plus, Trash2, CalendarDays } from 'lucide-react';
+import { EntryWrapper } from './Containers';
 
 interface InputFieldProps {
     label: string;
@@ -44,37 +45,43 @@ interface BulletPointsProps {
     onAdd: () => void;
     onChange: (idx: number, val: string) => void;
     onRemove: (idx: number) => void;
+    onMove: (idx: number, direction: 'up' | 'down') => void;
 }
 
-export const BulletPoints: React.FC<BulletPointsProps> = ({ bullets, onAdd, onChange, onRemove }) => (
-    <div className="space-y-2">
+export const BulletPoints: React.FC<BulletPointsProps> = ({ bullets, onAdd, onChange, onRemove, onMove }) => (
+    <div className="space-y-4">
         <div className="flex items-center justify-between">
             <label className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Bullet Points</label>
             <button onClick={onAdd} className="text-[10px] font-bold text-blue-600 hover:text-blue-700 uppercase tracking-tighter flex items-center gap-1">
                 <Plus className="w-3 h-3" /> Add Bullet
             </button>
         </div>
-        {bullets.map((bullet, idx) => (
-            <div key={idx} className="flex gap-2 group">
-                <textarea
-                    rows={1}
-                    value={bullet}
-                    onChange={e => {
-                        onChange(idx, e.target.value);
-                        e.target.style.height = 'inherit';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
-                    onFocus={e => {
-                        e.target.style.height = 'inherit';
-                        e.target.style.height = `${e.target.scrollHeight}px`;
-                    }}
-                    className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-                />
-                <button onClick={() => onRemove(idx)} className="p-2 text-slate-300 dark:text-slate-600 hover:text-red-500 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                </button>
-            </div>
-        ))}
+        <div className="space-y-3">
+            {bullets.map((bullet, idx) => (
+                <EntryWrapper
+                    key={idx}
+                    onRemove={() => onRemove(idx)}
+                    onMoveUp={idx > 0 ? () => onMove(idx, 'up') : undefined}
+                    onMoveDown={idx < bullets.length - 1 ? () => onMove(idx, 'down') : undefined}
+                >
+                    <textarea
+                        rows={1}
+                        value={bullet}
+                        onChange={e => {
+                            onChange(idx, e.target.value);
+                            e.target.style.height = 'inherit';
+                            e.target.style.height = `${e.target.scrollHeight}px`;
+                        }}
+                        onFocus={e => {
+                            e.target.style.height = 'inherit';
+                            e.target.style.height = `${e.target.scrollHeight}px`;
+                        }}
+                        placeholder="Describe your achievement..."
+                        className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400 dark:placeholder:text-slate-500 transition-all"
+                    />
+                </EntryWrapper>
+            ))}
+        </div>
     </div>
 );
 

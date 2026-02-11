@@ -318,6 +318,21 @@ const ResumeBuilder: React.FC = () => {
         setData(prev => ({ ...prev, [section]: (prev[section] as any[]).map(item => item.id === entryId ? { ...item, bullets: item.bullets.filter((_: any, i: number) => i !== bulletIndex) } : item) }));
     };
 
+    const moveBullet = (section: 'experience' | 'projects' | 'leadership' | 'volunteer', entryId: string, index: number, direction: 'up' | 'down') => {
+        setData(prev => ({
+            ...prev,
+            [section]: (prev[section] as any[]).map(item => {
+                if (item.id !== entryId) return item;
+                const newBullets = [...item.bullets];
+                const targetIndex = direction === 'up' ? index - 1 : index + 1;
+                if (targetIndex >= 0 && targetIndex < newBullets.length) {
+                    [newBullets[index], newBullets[targetIndex]] = [newBullets[targetIndex], newBullets[index]];
+                }
+                return { ...item, bullets: newBullets };
+            })
+        }));
+    };
+
     const addSkillCategory = () => {
         const newId = Math.random().toString(36).substr(2, 9);
         setData(prev => ({ ...prev, skills: [...prev.skills, { id: newId, label: '', skills: '' }] }));
@@ -410,7 +425,7 @@ const ResumeBuilder: React.FC = () => {
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
                         <div className="flex gap-1 items-center">
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                             <input
                                 type="file"
                                 ref={fileInputRef}
@@ -434,7 +449,7 @@ const ResumeBuilder: React.FC = () => {
                             >
                                 <FileJson className="w-4 h-4" />
                             </button>
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-800 mx-1"></div>
+                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                             <button
                                 onClick={handleClear}
                                 className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
@@ -648,7 +663,7 @@ const ResumeBuilder: React.FC = () => {
                                             </div>
                                         </div>
                                         <InputField label="Location" value={exp.location} onChange={v => updateEntry('experience', exp.id, 'location', v)} />
-                                        <BulletPoints bullets={exp.bullets} onAdd={() => addBullet('experience', exp.id)} onChange={(idx, v) => updateBullet('experience', exp.id, idx, v)} onRemove={(idx) => removeBullet('experience', exp.id, idx)} />
+                                        <BulletPoints bullets={exp.bullets} onAdd={() => addBullet('experience', exp.id)} onChange={(idx, v) => updateBullet('experience', exp.id, idx, v)} onRemove={(idx) => removeBullet('experience', exp.id, idx)} onMove={(idx, dir) => moveBullet('experience', exp.id, idx, dir)} />
                                     </EntryWrapper>
                                 ))}
                             </FormSection>
@@ -669,7 +684,7 @@ const ResumeBuilder: React.FC = () => {
                                             <InputField required label="Start Date" type="date" value={proj.startDate} onChange={v => updateEntry('projects', proj.id, 'startDate', v)} error={errors.projects[idx]?.startDate} />
                                             <InputField label="End Date" type="date" value={proj.endDate} onChange={v => updateEntry('projects', proj.id, 'endDate', v)} />
                                         </div>
-                                        <BulletPoints bullets={proj.bullets} onAdd={() => addBullet('projects', proj.id)} onChange={(idx, v) => updateBullet('projects', proj.id, idx, v)} onRemove={(idx) => removeBullet('projects', proj.id, idx)} />
+                                        <BulletPoints bullets={proj.bullets} onAdd={() => addBullet('projects', proj.id)} onChange={(idx, v) => updateBullet('projects', proj.id, idx, v)} onRemove={(idx) => removeBullet('projects', proj.id, idx)} onMove={(idx, dir) => moveBullet('projects', proj.id, idx, dir)} />
                                     </EntryWrapper>
                                 ))}
                             </FormSection>
@@ -717,7 +732,7 @@ const ResumeBuilder: React.FC = () => {
                                                 <input type={lead.endDate === 'Present' ? 'text' : 'date'} value={lead.endDate} onChange={e => updateEntry('leadership', lead.id, 'endDate', e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                                             </div>
                                         </div>
-                                        <BulletPoints bullets={lead.bullets} onAdd={() => addBullet('leadership', lead.id)} onChange={(idx, v) => updateBullet('leadership', lead.id, idx, v)} onRemove={(idx) => removeBullet('leadership', lead.id, idx)} />
+                                        <BulletPoints bullets={lead.bullets} onAdd={() => addBullet('leadership', lead.id)} onChange={(idx, v) => updateBullet('leadership', lead.id, idx, v)} onRemove={(idx) => removeBullet('leadership', lead.id, idx)} onMove={(idx, dir) => moveBullet('leadership', lead.id, idx, dir)} />
                                     </EntryWrapper>
                                 ))}
                             </FormSection>
@@ -784,7 +799,7 @@ const ResumeBuilder: React.FC = () => {
                                                 <input type={vol.endDate === 'Present' ? 'text' : 'date'} value={vol.endDate} onChange={e => updateEntry('volunteer', vol.id, 'endDate', e.target.value)} className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
                                             </div>
                                         </div>
-                                        <BulletPoints bullets={vol.bullets} onAdd={() => addBullet('volunteer', vol.id)} onChange={(idx, v) => updateBullet('volunteer', vol.id, idx, v)} onRemove={(idx) => removeBullet('volunteer', vol.id, idx)} />
+                                        <BulletPoints bullets={vol.bullets} onAdd={() => addBullet('volunteer', vol.id)} onChange={(idx, v) => updateBullet('volunteer', vol.id, idx, v)} onRemove={(idx) => removeBullet('volunteer', vol.id, idx)} onMove={(idx, dir) => moveBullet('volunteer', vol.id, idx, dir)} />
                                     </EntryWrapper>
                                 ))}
                             </FormSection>
