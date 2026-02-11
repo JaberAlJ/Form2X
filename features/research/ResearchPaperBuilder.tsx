@@ -35,7 +35,8 @@ import {
     DownloadIcon,
     AlertCircle,
     Eraser,
-    Beaker
+    Beaker,
+    Bookmark
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -56,6 +57,7 @@ const ResearchPaperBuilder: React.FC = () => {
     const [sidebarTab, setSidebarTab] = useState<'content' | 'settings'>('content');
     const [zoom, setZoom] = useState(0.8);
     const [isExporting, setIsExporting] = useState(false);
+    const [showCitationPicker, setShowCitationPicker] = useState<string | null>(null); // 'abstract' or section ID
     const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -184,6 +186,22 @@ const ResearchPaperBuilder: React.FC = () => {
         updateField('references', data.references.filter(r => r.id !== id));
     };
 
+    const insertCitation = (refId: string) => {
+        if (!showCitationPicker) return;
+
+        const citationTag = `[cite:${refId}]`;
+        if (showCitationPicker === 'abstract') {
+            updateField('abstract', data.abstract + " " + citationTag);
+        } else {
+            const sectionId = showCitationPicker;
+            const section = data.sections.find(s => s.id === sectionId);
+            if (section) {
+                updateSection(sectionId, 'content', section.content + " " + citationTag);
+            }
+        }
+        setShowCitationPicker(null);
+    };
+
     const addElement = (sectionId: string, type: 'figures' | 'tables' | 'equations' | 'bulletPoints') => {
         const section = data.sections.find(s => s.id === sectionId);
         if (!section) return;
@@ -250,7 +268,7 @@ const ResearchPaperBuilder: React.FC = () => {
                 <header className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="p-2 bg-indigo-600 rounded-lg"><BookOpen className="w-5 h-5 text-white" /></div>
-                        <h1 className="font-bold text-slate-800 dark:text-slate-100 italic transition-colors">Form2<span className="text-indigo-600">Research</span></h1>
+                        <h1 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">Form2<span className="text-indigo-600">Research</span></h1>
                     </div>
                     <div className="flex items-center gap-2">
                         <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
@@ -351,20 +369,29 @@ const ResearchPaperBuilder: React.FC = () => {
                                     <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Abstract<span className="text-red-500"> *</span></label>
                                     {errors.abstract && <span className="text-[9px] font-bold text-red-500 uppercase">{errors.abstract}</span>}
                                 </div>
-                                <textarea
-                                    value={data.abstract}
-                                    onChange={e => {
-                                        updateField('abstract', e.target.value);
-                                        e.target.style.height = 'inherit';
-                                        e.target.style.height = `${e.target.scrollHeight}px`;
-                                    }}
-                                    onFocus={e => {
-                                        e.target.style.height = 'inherit';
-                                        e.target.style.height = `${e.target.scrollHeight}px`;
-                                    }}
-                                    rows={4}
-                                    className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`}
-                                />
+                                <div className="relative group/textarea">
+                                    <textarea
+                                        value={data.abstract}
+                                        onChange={e => {
+                                            updateField('abstract', e.target.value);
+                                            e.target.style.height = 'inherit';
+                                            e.target.style.height = `${e.target.scrollHeight}px`;
+                                        }}
+                                        onFocus={e => {
+                                            e.target.style.height = 'inherit';
+                                            e.target.style.height = `${e.target.scrollHeight}px`;
+                                        }}
+                                        rows={4}
+                                        className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`}
+                                    />
+                                    <button
+                                        onClick={() => setShowCitationPicker('abstract')}
+                                        className="absolute bottom-2 right-2 p-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white text-slate-500 dark:text-slate-400 rounded transition-all opacity-0 group-hover/textarea:opacity-100 flex items-center gap-1 text-[10px] font-bold shadow-sm"
+                                        title="Insert Citation"
+                                    >
+                                        <Bookmark className="w-3 h-3" /> CITE
+                                    </button>
+                                </div>
                             </div>
                             <InputField label="Keywords" value={data.keywords} onChange={v => updateField('keywords', v)} placeholder="Separated by commas..." />
                         </section>
@@ -385,20 +412,29 @@ const ResearchPaperBuilder: React.FC = () => {
                                     </div>
                                     <div className="space-y-1">
                                         <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Content</label>
-                                        <textarea
-                                            value={section.content}
-                                            onChange={e => {
-                                                updateSection(section.id, 'content', e.target.value);
-                                                e.target.style.height = 'inherit';
-                                                e.target.style.height = `${e.target.scrollHeight}px`;
-                                            }}
-                                            onFocus={e => {
-                                                e.target.style.height = 'inherit';
-                                                e.target.style.height = `${e.target.scrollHeight}px`;
-                                            }}
-                                            rows={3}
-                                            className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
-                                        />
+                                        <div className="relative group/textarea">
+                                            <textarea
+                                                value={section.content}
+                                                onChange={e => {
+                                                    updateSection(section.id, 'content', e.target.value);
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                onFocus={e => {
+                                                    e.target.style.height = 'inherit';
+                                                    e.target.style.height = `${e.target.scrollHeight}px`;
+                                                }}
+                                                rows={3}
+                                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
+                                            />
+                                            <button
+                                                onClick={() => setShowCitationPicker(section.id)}
+                                                className="absolute bottom-2 right-2 p-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white text-slate-500 dark:text-slate-400 rounded transition-all opacity-0 group-hover/textarea:opacity-100 flex items-center gap-1 text-[10px] font-bold shadow-sm"
+                                                title="Insert Citation"
+                                            >
+                                                <Bookmark className="w-3 h-3" /> CITE
+                                            </button>
+                                        </div>
                                     </div>
 
                                     <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -517,6 +553,44 @@ const ResearchPaperBuilder: React.FC = () => {
                     {activeTab === 'edit' ? 'Preview' : 'Edit'}
                 </button>
             </div>
+
+            {/* Citation Picker Modal */}
+            {showCitationPicker && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
+                        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
+                            <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                                <Bookmark className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Insert Citation
+                            </h3>
+                            <button onClick={() => setShowCitationPicker(null)} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors text-slate-500 dark:text-slate-400">
+                                <ChevronDown className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <div className="max-h-[60vh] overflow-y-auto p-2 space-y-1">
+                            {data.references.length === 0 ? (
+                                <div className="p-8 text-center text-slate-400 dark:text-slate-600">
+                                    <Bookmark className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                    <p className="text-sm">No references found. Add some in the References section below.</p>
+                                </div>
+                            ) : (
+                                data.references.map((ref, idx) => (
+                                    <button
+                                        key={ref.id}
+                                        onClick={() => insertCitation(ref.id)}
+                                        className="w-full text-left p-3 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 flex gap-3 group"
+                                    >
+                                        <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300">[{idx + 1}]</span>
+                                        <span className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{ref.text || "(Empty Reference)"}</span>
+                                    </button>
+                                ))
+                            )}
+                        </div>
+                        <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
+                            <button onClick={() => setShowCitationPicker(null)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
