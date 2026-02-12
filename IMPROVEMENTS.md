@@ -11,13 +11,13 @@
 
 ### 📝 Form2Resume Enhancements
 
-- [ ] **Skill Proficiency**: Add optional skill level indicators (bars/dots) for technical skills.  <!-- This can be introduced to another soluation e.g. Form2CV-->
-- [ ] **Multi-Template Support**: Introduce a secondary "Modern" template with a sidebar layout.    <!-- This can be introduced to another soluation e.g. Form2CV-->
-- [ ] **ATS Content Suggestions**: Simple UI for keyword optimization based on industry standards.<!-- This can be introduced later with AI features-->
+- [ ] ~~**Skill Proficiency**: Add optional skill level indicators (bars/dots) for technical skills.~~ *`This can be introduced to another soluation e.g. Form2CV`*
+- [ ] ~~**Multi-Template Support**: Introduce a secondary "Modern" template with a sidebar layout.~~ *`This can be introduced to another soluation e.g. Form2CV`*
+- [ ] ~~**ATS Content Suggestions**: Simple UI for keyword optimization based on industry standards.~~ *`This can be introduced later with AI features`*
 
 ### 🔬 Form2Research Enhancements
 
-- [ ] **BibTeX Import**: Support for pasting BibTeX strings to automatically populate the Reference section.    <!-- This can be introduced later -->
+- [ ] ~~**BibTeX Import**: Support for pasting BibTeX strings to automatically populate the Reference section.~~ *`This can be introduced later`*
 - [x] **Live LaTeX Helper**: Real-time preview for the equation editor.
 - [x] **Internal Referencing**: Support for citing figures and tables within the manuscript text (e.g., "[Fig. 1]").
 
