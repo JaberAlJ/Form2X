@@ -340,7 +340,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <div className="p-2 bg-indigo-600 rounded-lg"><BookOpen className="w-5 h-5 text-white" /></div>
                         <h1 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">Form2<span className="text-indigo-600">Research</span></h1>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                         <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
@@ -402,7 +402,7 @@ const ResearchPaperBuilder: React.FC = () => {
                 )}
 
                 {sidebarTab === 'content' && (
-                    <div className="flex-1 overflow-y-auto p-6 space-y-10 bg-white dark:bg-slate-900">
+                    <div className="flex-1 overflow-y-auto p-6 pb-32 md:pb-10 space-y-10 bg-white dark:bg-slate-900">
                         {hasAnyErrors && (
                             <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
                                 <AlertCircle className="w-5 h-5 shrink-0" />

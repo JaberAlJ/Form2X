@@ -416,7 +416,7 @@ const ResumeBuilder: React.FC = () => {
                         <div className="p-2 bg-blue-600 rounded-lg"><FileText className="w-5 h-5 text-white" /></div>
                         <h1 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">Form2<span className="text-blue-600">Resume</span></h1>
                     </div>
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center justify-end gap-2">
                         <button
                             onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
                             className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400"
@@ -424,57 +424,55 @@ const ResumeBuilder: React.FC = () => {
                         >
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
-                        <div className="flex gap-1 items-center">
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
-                            <input
-                                type="file"
-                                ref={fileInputRef}
-                                onChange={handleImportJson}
-                                className="hidden"
-                                accept=".json"
-                            />
-                            <button
-                                disabled={isExporting}
-                                onClick={() => fileInputRef.current?.click()}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
-                                title="Import JSON"
-                            >
-                                <Upload className="w-4 h-4" />
-                            </button>
-                            <button
-                                disabled={isExporting}
-                                onClick={() => performExport('json')}
-                                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
-                                title="Export JSON"
-                            >
-                                <FileJson className="w-4 h-4" />
-                            </button>
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
-                            <button
-                                onClick={handleClear}
-                                className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
-                                title="Clear All Fields"
-                            >
-                                <Eraser className="w-4 h-4" />
-                            </button>
-                            <button
-                                onClick={handleLoadSample}
-                                className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors text-slate-400 hover:text-blue-500"
-                                title="Load Sample Data"
-                            >
-                                <Beaker className="w-4 h-4" />
-                            </button>
-                            <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
-                            <button
-                                disabled={isExporting}
-                                onClick={() => performExport('html')}
-                                className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
-                                title="Export as standalone HTML file"
-                            >
-                                {isExporting ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" /> : <Download className="w-4 h-4" />}
-                                HTML
-                            </button>
-                        </div>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handleImportJson}
+                            className="hidden"
+                            accept=".json"
+                        />
+                        <button
+                            disabled={isExporting}
+                            onClick={() => fileInputRef.current?.click()}
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
+                            title="Import JSON"
+                        >
+                            <Upload className="w-4 h-4" />
+                        </button>
+                        <button
+                            disabled={isExporting}
+                            onClick={() => performExport('json')}
+                            className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400 disabled:opacity-50"
+                            title="Export JSON"
+                        >
+                            <FileJson className="w-4 h-4" />
+                        </button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <button
+                            onClick={handleClear}
+                            className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
+                            title="Clear All Fields"
+                        >
+                            <Eraser className="w-4 h-4" />
+                        </button>
+                        <button
+                            onClick={handleLoadSample}
+                            className="p-2 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-md transition-colors text-slate-400 hover:text-blue-500"
+                            title="Load Sample Data"
+                        >
+                            <Beaker className="w-4 h-4" />
+                        </button>
+                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <button
+                            disabled={isExporting}
+                            onClick={() => performExport('html')}
+                            className="px-3 py-1.5 bg-blue-600 text-white rounded-md text-sm font-medium hover:bg-blue-700 transition-all shadow-sm disabled:opacity-50 flex items-center gap-2"
+                            title="Export as standalone HTML file"
+                        >
+                            {isExporting ? <Loader2 className="w-4 h-4 animate-spin text-blue-600" /> : <Download className="w-4 h-4" />}
+                            HTML
+                        </button>
                     </div>
                 </header>
 
@@ -581,7 +579,7 @@ const ResumeBuilder: React.FC = () => {
                 )}
 
                 {sidebarTab === 'content' && (
-                    <div className="flex-1 overflow-y-auto p-6 space-y-10 scroll-smooth bg-white dark:bg-slate-900 pb-24 md:pb-6 transition-colors">
+                    <div className="flex-1 overflow-y-auto p-6 space-y-10 scroll-smooth bg-white dark:bg-slate-900 pb-32 md:pb-6 transition-colors">
                         {hasAnyErrors && (
                             <div className="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-700 dark:text-red-400 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300">
                                 <AlertCircle className="w-5 h-5 shrink-0" />
