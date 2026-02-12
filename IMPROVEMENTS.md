@@ -19,7 +19,7 @@
 
 - [ ] **BibTeX Import**: Support for pasting BibTeX strings to automatically populate the Reference section.    <!-- This can be introduced later -->
 - [x] **Live LaTeX Helper**: Real-time preview for the equation editor.
-- [ ] **Internal Referencing**: Support for citing figures and tables within the manuscript text (e.g., "[Fig. 1]").
+- [x] **Internal Referencing**: Support for citing figures and tables within the manuscript text (e.g., "[Fig. 1]").
 
 ### 🚀 Platform & UX
 

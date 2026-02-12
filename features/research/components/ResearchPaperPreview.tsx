@@ -8,24 +8,55 @@ interface Props {
 }
 
 /**
- * Replaces citation tags like [cite:r1] with formatted numbers like [1].
- * Calculates the index based on the reference's position in the references array.
+ * Replaces citation tags like [cite:r1] with formatted numbers like [1],
+ * and internal references like [fig:id] or [tab:id] with [Fig. X] or [Table X].
  */
-const resolveCitations = (text: string, references: Reference[]) => {
+const resolveCitations = (text: string, references: Reference[], sections: ResearchSection[]) => {
     if (!text) return text;
-    const regex = /\[cite:([^\]]+)\]/g;
-    return text.replace(regex, (match, refId) => {
+
+    // Handle references [cite:r1]
+    let processedText = text.replace(/\[cite:([^\]]+)\]/g, (match, refId) => {
         const index = references.findIndex(r => r.id === refId);
         return index !== -1 ? `[${index + 1}]` : match;
     });
+
+    // Handle figures [fig:id]
+    processedText = processedText.replace(/\[fig:([^\]]+)\]/g, (match, figId) => {
+        let count = 0;
+        for (const section of sections) {
+            if (section.figures) {
+                for (const fig of section.figures) {
+                    count++;
+                    if (fig.id === figId) return `Fig. ${count}`;
+                }
+            }
+        }
+        return match;
+    });
+
+    // Handle tables [tab:id]
+    processedText = processedText.replace(/\[tab:([^\]]+)\]/g, (match, tabId) => {
+        let count = 0;
+        for (const section of sections) {
+            if (section.tables) {
+                for (const tab of section.tables) {
+                    count++;
+                    if (tab.id === tabId) return `Table ${count}`;
+                }
+            }
+        }
+        return match;
+    });
+
+    return processedText;
 };
 
 /**
  * Component to render text containing LaTeX (surrounded by $) and IEEE Citations.
  * Uses KaTeX for mathematical notation.
  */
-const LatexText: React.FC<{ text: string, references?: Reference[] }> = ({ text, references = [] }) => {
-    const processedText = useMemo(() => resolveCitations(text, references), [text, references]);
+const LatexText: React.FC<{ text: string, references?: Reference[], sections?: ResearchSection[] }> = ({ text, references = [], sections = [] }) => {
+    const processedText = useMemo(() => resolveCitations(text, references, sections), [text, references, sections]);
 
     const parts = useMemo(() => {
         if (!processedText) return [];
@@ -275,7 +306,7 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
             ))}
 
             <div className="paper-header">
-                <h1 className="paper-title"><LatexText text={title} references={references} /></h1>
+                <h1 className="paper-title"><LatexText text={title} references={references} sections={sections} /></h1>
                 <div className="author-grid">
                     {authors.map((author) => (
                         <div key={author.id} className="author-block">
@@ -291,10 +322,10 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
 
             <div className="paper-content">
                 <div className="abstract-section">
-                    <span className="abstract-label">Abstract—</span><LatexText text={abstract} references={references} />
+                    <span className="abstract-label">Abstract—</span><LatexText text={abstract} references={references} sections={sections} />
                 </div>
                 <div className="keywords-section">
-                    <span className="keywords-label">Keywords—</span><LatexText text={keywords} references={references} />
+                    <span className="keywords-label">Keywords—</span><LatexText text={keywords} references={references} sections={sections} />
                 </div>
 
                 {sections.map((section) => (
@@ -304,14 +335,14 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
                             {section.level === 2 && <h3 className="section-h2">{getHeadingPrefix(section, sections)}{section.title}</h3>}
                             {section.level === 3 && <h4 className="section-h3">{getHeadingPrefix(section, sections)}{section.title}</h4>}
                             <div className={`section-content ${section.level === 3 ? 'inline' : ''}`}>
-                                <LatexText text={section.content} references={references} />
+                                <LatexText text={section.content} references={references} sections={sections} />
                             </div>
                         </div>
 
                         {section.bulletPoints && section.bulletPoints.length > 0 && (
                             <ul className="bullet-list">
                                 {section.bulletPoints.map((bullet, bIdx) => (
-                                    bullet && <li key={bIdx} className="bullet-item"><LatexText text={bullet} references={references} /></li>
+                                    bullet && <li key={bIdx} className="bullet-item"><LatexText text={bullet} references={references} sections={sections} /></li>
                                 ))}
                             </ul>
                         )}
@@ -337,7 +368,7 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
                             return (
                                 <div key={fig.id} className="figure-container">
                                     {fig.imageData && <img src={fig.imageData} alt={`Fig. ${figureCounter}`} className="figure-img" />}
-                                    <div className="figure-caption">Fig. {figureCounter}. <LatexText text={fig.caption} references={references} /></div>
+                                    <div className="figure-caption">Fig. {figureCounter}. <LatexText text={fig.caption} references={references} sections={sections} /></div>
                                 </div>
                             );
                         })}
@@ -347,12 +378,12 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
                             return (
                                 <div key={tab.id} className="table-container">
                                     <div className="table-caption">
-                                        TABLE {romanize(tableCounter)}. <LatexText text={tab.caption} references={references} />
+                                        TABLE {romanize(tableCounter)}. <LatexText text={tab.caption} references={references} sections={sections} />
                                     </div>
                                     <table className="ieee-table">
                                         <tbody>
                                             {tab.rows.map((row, rIdx) => (
-                                                <tr key={rIdx}>{row.map((cell, cIdx) => <td key={cIdx}><LatexText text={cell} references={references} /></td>)}</tr>
+                                                <tr key={rIdx}>{row.map((cell, cIdx) => <td key={cIdx}><LatexText text={cell} references={references} sections={sections} /></td>)}</tr>
                                             ))}
                                         </tbody>
                                     </table>
@@ -365,7 +396,7 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
                 {acknowledgment && (
                     <div className="strict-group acknowledgment-section">
                         <h2 className="section-h1">Acknowledgment</h2>
-                        <div className="section-content"><LatexText text={acknowledgment} references={references} /></div>
+                        <div className="section-content"><LatexText text={acknowledgment} references={references} sections={sections} /></div>
                     </div>
                 )}
 
@@ -375,7 +406,7 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
                             <h2 className="references-title">References</h2>
                         </div>
                         {references.map((ref, idx) => (
-                            <div key={ref.id} className="reference-item">[{idx + 1}] <LatexText text={ref.text} references={references} /></div>
+                            <div key={ref.id} className="reference-item">[{idx + 1}] <LatexText text={ref.text} references={references} sections={sections} /></div>
                         ))}
                     </div>
                 )}

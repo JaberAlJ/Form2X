@@ -36,7 +36,9 @@ import {
     AlertCircle,
     Eraser,
     Beaker,
-    Bookmark
+    Bookmark,
+    PenLine,
+    Table as TableIcon
 } from 'lucide-react';
 import { useTheme } from 'next-themes';
 
@@ -88,7 +90,7 @@ const ResearchPaperBuilder: React.FC = () => {
     const [sidebarTab, setSidebarTab] = useState<'content' | 'settings'>('content');
     const [zoom, setZoom] = useState(0.8);
     const [isExporting, setIsExporting] = useState(false);
-    const [showCitationPicker, setShowCitationPicker] = useState<string | null>(null); // 'abstract' or section ID
+    const [showCitationPicker, setShowCitationPicker] = useState<{ targetId: string, type: 'ref' | 'fig' | 'tab' } | null>(null);
     const { theme, setTheme, resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -296,17 +298,18 @@ const ResearchPaperBuilder: React.FC = () => {
         }
     };
 
-    const insertCitation = (refId: string) => {
+    const insertCitation = (id: string) => {
         if (!showCitationPicker) return;
 
-        const citationTag = `[cite:${refId}]`;
-        if (showCitationPicker === 'abstract') {
-            updateField('abstract', data.abstract + " " + citationTag);
+        const { targetId, type } = showCitationPicker;
+        const tag = type === 'ref' ? `[cite:${id}]` : type === 'fig' ? `[fig:${id}]` : `[tab:${id}]`;
+
+        if (targetId === 'abstract') {
+            updateField('abstract', data.abstract + " " + tag);
         } else {
-            const sectionId = showCitationPicker;
-            const section = data.sections.find(s => s.id === sectionId);
+            const section = data.sections.find(s => s.id === targetId);
             if (section) {
-                updateSection(sectionId, 'content', section.content + " " + citationTag);
+                updateSection(targetId, 'content', section.content + " " + tag);
             }
         }
         setShowCitationPicker(null);
@@ -510,13 +513,29 @@ const ResearchPaperBuilder: React.FC = () => {
                                         rows={4}
                                         className={`w-full px-3 py-2 bg-slate-50 dark:bg-slate-800/50 border ${errors.abstract ? 'border-red-500 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : 'border-slate-200 dark:border-slate-700'} rounded-md text-sm outline-none focus:ring-2 ${errors.abstract ? 'focus:ring-red-500/20' : 'focus:ring-indigo-500/20'} transition-all resize-none`}
                                     />
-                                    <button
-                                        onClick={() => setShowCitationPicker('abstract')}
-                                        className="absolute bottom-2 right-2 p-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white text-slate-500 dark:text-slate-400 rounded transition-all opacity-0 group-hover/textarea:opacity-100 flex items-center gap-1 text-[10px] font-bold shadow-sm"
-                                        title="Insert Citation"
-                                    >
-                                        <Bookmark className="w-3 h-3" /> CITE
-                                    </button>
+                                    <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover/textarea:opacity-100 transition-all">
+                                        <button
+                                            onClick={() => setShowCitationPicker({ targetId: 'abstract', type: 'ref' })}
+                                            className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                            title="Cite Reference"
+                                        >
+                                            <Bookmark className="w-3 h-3" /> REF
+                                        </button>
+                                        <button
+                                            onClick={() => setShowCitationPicker({ targetId: 'abstract', type: 'fig' })}
+                                            className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                            title="Cite Figure"
+                                        >
+                                            <ImageIcon className="w-3 h-3" /> FIG
+                                        </button>
+                                        <button
+                                            onClick={() => setShowCitationPicker({ targetId: 'abstract', type: 'tab' })}
+                                            className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                            title="Cite Table"
+                                        >
+                                            <TableIcon className="w-3 h-3" /> TAB
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                             <InputField label="Keywords" value={data.keywords} onChange={v => updateField('keywords', v)} placeholder="Separated by commas..." />
@@ -553,13 +572,29 @@ const ResearchPaperBuilder: React.FC = () => {
                                                 rows={3}
                                                 className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
                                             />
-                                            <button
-                                                onClick={() => setShowCitationPicker(section.id)}
-                                                className="absolute bottom-2 right-2 p-1.5 bg-slate-100 dark:bg-slate-700 hover:bg-indigo-600 hover:text-white text-slate-500 dark:text-slate-400 rounded transition-all opacity-0 group-hover/textarea:opacity-100 flex items-center gap-1 text-[10px] font-bold shadow-sm"
-                                                title="Insert Citation"
-                                            >
-                                                <Bookmark className="w-3 h-3" /> CITE
-                                            </button>
+                                            <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover/textarea:opacity-100 transition-all">
+                                                <button
+                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'ref' })}
+                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                    title="Cite Reference"
+                                                >
+                                                    <Bookmark className="w-3 h-3" /> REF
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'fig' })}
+                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                    title="Cite Figure"
+                                                >
+                                                    <ImageIcon className="w-3 h-3" /> FIG
+                                                </button>
+                                                <button
+                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'tab' })}
+                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                    title="Cite Table"
+                                                >
+                                                    <TableIcon className="w-3 h-3" /> TAB
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -571,7 +606,21 @@ const ResearchPaperBuilder: React.FC = () => {
 
                                     {section.figures?.map((fig, fIdx) => (
                                         <div key={fig.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
-                                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-indigo-500">FIGURE {fIdx + 1}</span><button onClick={() => updateSection(section.id, 'figures', section.figures?.filter(f => f.id !== fig.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button></div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold text-indigo-500 uppercase">Figure {fIdx + 1}</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            const tag = `[fig:${fig.id}]`;
+                                                            updateSection(section.id, 'content', section.content + " " + tag);
+                                                        }}
+                                                        className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-600 flex items-center gap-0.5"
+                                                    >
+                                                        <Plus className="w-2.5 h-2.5" /> CITE
+                                                    </button>
+                                                </div>
+                                                <button onClick={() => updateSection(section.id, 'figures', section.figures?.filter(f => f.id !== fig.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
+                                            </div>
                                             <ImageUploader imageData={fig.imageData} onUpload={base64 => {
                                                 const newFigs = [...(section.figures || [])];
                                                 newFigs[fIdx].imageData = base64;
@@ -591,7 +640,21 @@ const ResearchPaperBuilder: React.FC = () => {
 
                                     {section.tables?.map((tab, tIdx) => (
                                         <div key={tab.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
-                                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-indigo-500">TABLE {tIdx + 1}</span><button onClick={() => updateSection(section.id, 'tables', section.tables?.filter(t => t.id !== tab.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button></div>
+                                            <div className="flex justify-between items-center">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-[10px] font-bold text-indigo-500 uppercase">Table {tIdx + 1}</span>
+                                                    <button
+                                                        onClick={() => {
+                                                            const tag = `[tab:${tab.id}]`;
+                                                            updateSection(section.id, 'content', section.content + " " + tag);
+                                                        }}
+                                                        className="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-600 flex items-center gap-0.5"
+                                                    >
+                                                        <Plus className="w-2.5 h-2.5" /> CITE
+                                                    </button>
+                                                </div>
+                                                <button onClick={() => updateSection(section.id, 'tables', section.tables?.filter(t => t.id !== tab.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
+                                            </div>
                                             <TableEditor rows={tab.rows} onChange={rows => {
                                                 const newTabs = [...(section.tables || [])];
                                                 newTabs[tIdx].rows = rows;
@@ -747,36 +810,108 @@ const ResearchPaperBuilder: React.FC = () => {
                     <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
                             <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                                <Bookmark className="w-4 h-4 text-indigo-600 dark:text-indigo-400" /> Insert Citation
+                                {showCitationPicker.type === 'ref' && <Bookmark className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                                {showCitationPicker.type === 'fig' && <ImageIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                                {showCitationPicker.type === 'tab' && <TableIcon className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />}
+                                Insert {showCitationPicker.type === 'ref' ? 'Citation' : showCitationPicker.type === 'fig' ? 'Figure Reference' : 'Table Reference'}
                             </h3>
                             <button onClick={() => setShowCitationPicker(null)} className="p-1 hover:bg-slate-200 dark:hover:bg-slate-700 rounded transition-colors text-slate-500 dark:text-slate-400">
                                 <ChevronDown className="w-5 h-5" />
                             </button>
                         </div>
                         <div className="max-h-[60vh] overflow-y-auto p-2 space-y-1">
-                            {data.references.length === 0 ? (
-                                <div className="p-8 text-center text-slate-400 dark:text-slate-600">
-                                    <Bookmark className="w-8 h-8 mx-auto mb-2 opacity-20" />
-                                    <p className="text-sm">No references found. Add some in the References section below.</p>
-                                </div>
-                            ) : (
-                                data.references.map((ref, idx) => (
-                                    <button
-                                        key={ref.id}
-                                        onClick={() => insertCitation(ref.id)}
-                                        className="w-full text-left p-3 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 flex gap-3 group"
-                                    >
-                                        <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300">[{idx + 1}]</span>
-                                        <span className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{ref.text || "(Empty Reference)"}</span>
-                                    </button>
-                                ))
+                            {showCitationPicker.type === 'ref' && (
+                                data.references.length === 0 ? (
+                                    <div className="p-8 text-center text-slate-400 dark:text-slate-600">
+                                        <Bookmark className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                        <p className="text-sm">No references found. Add some in the References section below.</p>
+                                    </div>
+                                ) : (
+                                    data.references.map((ref, idx) => (
+                                        <button
+                                            key={ref.id}
+                                            onClick={() => insertCitation(ref.id)}
+                                            className="w-full text-left p-3 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 flex gap-3 group"
+                                        >
+                                            <span className="text-xs font-bold text-indigo-400 group-hover:text-indigo-600 dark:group-hover:text-indigo-300">[{idx + 1}]</span>
+                                            <span className="text-xs text-slate-600 dark:text-slate-400 line-clamp-2">{ref.text || "(Empty Reference)"}</span>
+                                        </button>
+                                    ))
+                                )
+                            )}
+
+                            {showCitationPicker.type === 'fig' && (
+                                (() => {
+                                    const allFigs: { sectionTitle: string, id: string, caption: string, number: number }[] = [];
+                                    let count = 0;
+                                    data.sections.forEach(s => {
+                                        s.figures?.forEach(f => {
+                                            count++;
+                                            allFigs.push({ sectionTitle: s.title, id: f.id, caption: f.caption, number: count });
+                                        });
+                                    });
+
+                                    return allFigs.length === 0 ? (
+                                        <div className="p-8 text-center text-slate-400 dark:text-slate-600">
+                                            <ImageIcon className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                            <p className="text-sm">No figures found in any section.</p>
+                                        </div>
+                                    ) : (
+                                        allFigs.map((fig) => (
+                                            <button
+                                                key={fig.id}
+                                                onClick={() => insertCitation(fig.id)}
+                                                className="w-full text-left p-3 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 flex flex-col gap-1 group"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">Fig. {fig.number}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{fig.sectionTitle || 'Untitled Section'}</span>
+                                                </div>
+                                                <span className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">{fig.caption || "(No Caption)"}</span>
+                                            </button>
+                                        ))
+                                    );
+                                })()
+                            )}
+
+                            {showCitationPicker.type === 'tab' && (
+                                (() => {
+                                    const allTabs: { sectionTitle: string, id: string, caption: string, number: number }[] = [];
+                                    let count = 0;
+                                    data.sections.forEach(s => {
+                                        s.tables?.forEach(t => {
+                                            count++;
+                                            allTabs.push({ sectionTitle: s.title, id: t.id, caption: t.caption, number: count });
+                                        });
+                                    });
+
+                                    return allTabs.length === 0 ? (
+                                        <div className="p-8 text-center text-slate-400 dark:text-slate-600">
+                                            <TableIcon className="w-8 h-8 mx-auto mb-2 opacity-20" />
+                                            <p className="text-sm">No tables found in any section.</p>
+                                        </div>
+                                    ) : (
+                                        allTabs.map((tab) => (
+                                            <button
+                                                key={tab.id}
+                                                onClick={() => insertCitation(tab.id)}
+                                                className="w-full text-left p-3 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 rounded-lg transition-colors border border-transparent hover:border-indigo-100 dark:hover:border-indigo-900/50 flex flex-col gap-1 group"
+                                            >
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-xs font-bold text-indigo-600 dark:text-indigo-400">Table {tab.number}</span>
+                                                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">{tab.sectionTitle || 'Untitled Section'}</span>
+                                                </div>
+                                                <span className="text-xs text-slate-600 dark:text-slate-400 line-clamp-1">{tab.caption || "(No Caption)"}</span>
+                                            </button>
+                                        ))
+                                    );
+                                })()
                             )}
                         </div>
                         <div className="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 flex justify-end">
                             <button onClick={() => setShowCitationPicker(null)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cancel</button>
                         </div>
                     </div>
-                    <ResearchPaperPreview data={data} />
                 </div>
             )}
 
@@ -805,8 +940,6 @@ const ResearchPaperBuilder: React.FC = () => {
     );
 };
 
-const PenLine = ({ className }: { className?: string }) => (
-    <svg className={className} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" /></svg>
-);
+
 
 export default ResearchPaperBuilder;
