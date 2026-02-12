@@ -87,9 +87,40 @@ export const INITIAL_PAPER_DATA: PaperData = {
     ],
     acknowledgment: "This work was supported in part by the National Science Foundation under Grant No. EEC-2025-X01 and the Global AI Research Initiative.",
     references: [
-        { id: 'r1', text: "Y. Bengio, A. Courville, and P. Vincent, \"Representation Learning: A Review and New Perspectives,\" IEEE Trans. Pattern Anal. Mach. Intell., vol. 35, no. 8, pp. 1798–1828, Aug. 2013." },
-        { id: 'r2', text: "A. Vaswani et al., \"Attention is All You Need,\" in Proc. 31st Int. Conf. Neural Inf. Process. Syst., 2017, pp. 5998–6008." },
-        { id: 'r3', text: "S. Han, H. Mao, and W. J. Dally, \"Deep Compression: Compressing Deep Neural Networks with Pruning, Trained Quantization and Huffman Coding,\" in Proc. Int. Conf. Learn. Represent., 2016." }
+        {
+            id: 'r1',
+            type: 'publication',
+            authors: 'Y. Bengio, A. Courville, and P. Vincent',
+            title: 'Representation Learning: A Review and New Perspectives',
+            journal: 'IEEE Trans. Pattern Anal. Mach. Intell.',
+            volume: '35',
+            issue: '8',
+            pages: '1798–1828',
+            year: '2013',
+            text: 'Y. Bengio, A. Courville, and P. Vincent, "Representation Learning: A Review and New Perspectives," IEEE Trans. Pattern Anal. Mach. Intell., vol. 35, no. 8, pp. 1798–1828, 2013.'
+        },
+        {
+            id: 'r2',
+            type: 'book',
+            authors: 'I. Goodfellow, Y. Bengio, and A. Courville',
+            title: 'Deep Learning',
+            publisher: 'MIT Press',
+            year: '2016',
+            text: 'I. Goodfellow, Y. Bengio, and A. Courville. Deep Learning. MIT Press, 2016.'
+        },
+        {
+            id: 'r3',
+            type: 'website',
+            title: 'PyTorch Documentation - Torch.nn',
+            url: 'https://pytorch.org/docs/stable/nn.html',
+            accessDate: 'August 2023',
+            text: '"PyTorch Documentation - Torch.nn." [Online]. Available: https://pytorch.org/docs/stable/nn.html. [Accessed: August 2023].'
+        },
+        {
+            id: 'r4',
+            type: 'other',
+            text: 'A. Vaswani et al., "Attention is All You Need," in Proc. 31st Int. Conf. Neural Inf. Process. Syst., 2017, pp. 5998–6008.'
+        }
     ],
     style: {
         fontFamily: 'Times New Roman',

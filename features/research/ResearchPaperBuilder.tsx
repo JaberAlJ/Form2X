@@ -51,6 +51,21 @@ import { StyleOption } from '@/components/ui/StyleOption';
 // Validation Helpers
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+const formatReference = (ref: Reference): string => {
+    switch (ref.type) {
+        case 'publication':
+            return `${ref.authors || 'Authors'}. "${ref.title || 'Title'}." ${ref.journal || 'Journal'}${ref.volume ? `, vol. ${ref.volume}` : ''}${ref.issue ? `, no. ${ref.issue}` : ''}${ref.pages ? `, pp. ${ref.pages}` : ''}, ${ref.year || 'n.d.'}.${ref.doi ? ` DOI: ${ref.doi}` : ''}`;
+        case 'book':
+            return `${ref.authors || 'Authors'}. ${ref.title || 'Title'}. ${ref.publisher || 'Publisher'}, ${ref.year || 'n.d.'}.`;
+        case 'website':
+            return `"${ref.title || 'Title'}." [Online]. Available: ${ref.url || 'URL'}. [Accessed: ${ref.accessDate || 'Date'}].`;
+        case 'other':
+            return ref.text || '';
+        default:
+            return ref.text || '';
+    }
+};
+
 const ResearchPaperBuilder: React.FC = () => {
     const [data, setData] = useState<PaperData>(INITIAL_PAPER_DATA);
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
@@ -108,9 +123,26 @@ const ResearchPaperBuilder: React.FC = () => {
             title: !section.title.trim() ? "Required" : ""
         }));
 
-        e.references = data.references.map(ref => ({
-            text: !ref.text.trim() ? "Required" : ""
-        }));
+        e.references = data.references.map(ref => {
+            const refErrors: any = {};
+            if (ref.type === 'publication') {
+                if (!ref.title?.trim()) refErrors.title = "Required";
+                if (!ref.authors?.trim()) refErrors.authors = "Required";
+                if (!ref.journal?.trim()) refErrors.journal = "Required";
+                if (!ref.year?.trim()) refErrors.year = "Required";
+            } else if (ref.type === 'book') {
+                if (!ref.title?.trim()) refErrors.title = "Required";
+                if (!ref.authors?.trim()) refErrors.authors = "Required";
+                if (!ref.publisher?.trim()) refErrors.publisher = "Required";
+                if (!ref.year?.trim()) refErrors.year = "Required";
+            } else if (ref.type === 'website') {
+                if (!ref.title?.trim()) refErrors.title = "Required";
+                if (!ref.url?.trim()) refErrors.url = "Required";
+            } else {
+                if (!ref.text?.trim()) refErrors.text = "Required";
+            }
+            return refErrors;
+        });
 
         return e;
     }, [data]);
@@ -174,16 +206,54 @@ const ResearchPaperBuilder: React.FC = () => {
     };
 
     const addReference = () => {
-        const newRef: Reference = { id: `r${data.references.length + 1}`, text: '' };
+        const newRef: Reference = {
+            id: `r${data.references.length + 1}`,
+            type: 'publication',
+            text: '',
+            title: '',
+            authors: '',
+            journal: '',
+            year: ''
+        };
         updateField('references', [...data.references, newRef]);
     };
 
-    const updateReference = (id: string, text: string) => {
-        updateField('references', data.references.map(r => r.id === id ? { ...r, text } : r));
+    const updateReference = (id: string, field: keyof Reference, value: string) => {
+        setData(prev => ({
+            ...prev,
+            references: prev.references.map(r => {
+                if (r.id !== id) return r;
+                const updatedRef = { ...r, [field]: value };
+
+                if (field === 'type') {
+                    if (value === 'other') {
+                        // Switching TO other: Clear text so user can start fresh without placeholders
+                        updatedRef.text = '';
+                    } else {
+                        // Switching TO a structured type: Format immediately
+                        updatedRef.text = formatReference(updatedRef as Reference);
+                    }
+                } else if (updatedRef.type !== 'other' && field !== 'text') {
+                    // Field changed in structured type: Sync the formatted text
+                    updatedRef.text = formatReference(updatedRef as Reference);
+                }
+
+                return updatedRef;
+            })
+        }));
     };
 
     const removeReference = (id: string) => {
         updateField('references', data.references.filter(r => r.id !== id));
+    };
+
+    const moveReference = (index: number, direction: 'up' | 'down') => {
+        const newRefs = [...data.references];
+        const target = direction === 'up' ? index - 1 : index + 1;
+        if (target >= 0 && target < newRefs.length) {
+            [newRefs[index], newRefs[target]] = [newRefs[target], newRefs[index]];
+            updateField('references', newRefs);
+        }
     };
 
     const insertCitation = (refId: string) => {
@@ -508,13 +578,74 @@ const ResearchPaperBuilder: React.FC = () => {
                             <div className="flex items-center justify-between border-b border-indigo-100 dark:border-indigo-900 pb-2"><div className="flex items-center gap-2"><Quote className="w-5 h-5 text-indigo-600" /><h2 className="font-bold text-slate-800 dark:text-slate-200">References</h2></div><button onClick={addReference} className="p-1 hover:bg-indigo-50 rounded transition-colors"><Plus className="w-5 h-5 text-indigo-600" /></button></div>
                             <p className="text-[10px] text-slate-400 italic">Use [cite:r1] in content to link here.</p>
                             {data.references.map((ref, idx) => (
-                                <div key={ref.id} className="flex gap-2 items-start group">
-                                    <div className="pt-3 font-bold text-xs text-slate-300">[{idx + 1}]</div>
-                                    <div className="flex-1 space-y-1">
-                                        <InputField required label={`Ref ID: ${ref.id}`} value={ref.text} onChange={v => updateReference(ref.id, v)} error={errors.references[idx]?.text} />
+                                <EntryWrapper
+                                    key={ref.id}
+                                    onRemove={() => removeReference(ref.id)}
+                                    onMoveUp={idx > 0 ? () => moveReference(idx, 'up') : undefined}
+                                    onMoveDown={idx < data.references.length - 1 ? () => moveReference(idx, 'down') : undefined}
+                                >
+                                    <div className="flex gap-2 items-center mb-2">
+                                        <div className="font-bold text-xs text-slate-300">[{idx + 1}]</div>
+                                        <select
+                                            value={ref.type || 'other'}
+                                            onChange={e => updateReference(ref.id, 'type', e.target.value as any)}
+                                            className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded outline-none border-none focus:ring-1 focus:ring-indigo-500/30"
+                                        >
+                                            <option value="publication">PUBLICATION</option>
+                                            <option value="book">BOOK</option>
+                                            <option value="website">WEBSITE</option>
+                                            <option value="other">MANUAL / OTHER</option>
+                                        </select>
+                                        <div className="flex-1" />
+                                        <span className="text-[9px] font-mono text-slate-300 dark:text-slate-600 tracking-tighter uppercase">{ref.id}</span>
                                     </div>
-                                    <button onClick={() => removeReference(ref.id)} className="p-2 mt-4 text-slate-200 hover:text-red-500 transition-colors"><Trash2 className="w-4 h-4" /></button>
-                                </div>
+
+                                    {ref.type === 'publication' && (
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <InputField required label="Article Title" value={ref.title || ''} onChange={v => updateReference(ref.id, 'title', v)} error={errors.references[idx]?.title} />
+                                            <InputField required label="Authors" value={ref.authors || ''} onChange={v => updateReference(ref.id, 'authors', v)} placeholder="A. Name, B. Name..." error={errors.references[idx]?.authors} />
+                                            <InputField required label="Journal / Conference" value={ref.journal || ''} onChange={v => updateReference(ref.id, 'journal', v)} error={errors.references[idx]?.journal} />
+                                            <div className="grid grid-cols-4 gap-2">
+                                                <div className="col-span-1"><InputField label="Vol" value={ref.volume || ''} onChange={v => updateReference(ref.id, 'volume', v)} /></div>
+                                                <div className="col-span-1"><InputField label="No" value={ref.issue || ''} onChange={v => updateReference(ref.id, 'issue', v)} /></div>
+                                                <div className="col-span-1"><InputField label="Pages" value={ref.pages || ''} onChange={v => updateReference(ref.id, 'pages', v)} /></div>
+                                                <div className="col-span-1"><InputField required label="Year" value={ref.year || ''} onChange={v => updateReference(ref.id, 'year', v)} error={errors.references[idx]?.year} /></div>
+                                            </div>
+                                            <InputField label="DOI / URL" value={ref.doi || ''} onChange={v => updateReference(ref.id, 'doi', v)} />
+                                        </div>
+                                    )}
+
+                                    {ref.type === 'book' && (
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <InputField required label="Book Title" value={ref.title || ''} onChange={v => updateReference(ref.id, 'title', v)} error={errors.references[idx]?.title} />
+                                            <InputField required label="Authors" value={ref.authors || ''} onChange={v => updateReference(ref.id, 'authors', v)} error={errors.references[idx]?.authors} />
+                                            <InputField required label="Publisher" value={ref.publisher || ''} onChange={v => updateReference(ref.id, 'publisher', v)} error={errors.references[idx]?.publisher} />
+                                            <InputField required label="Year" value={ref.year || ''} onChange={v => updateReference(ref.id, 'year', v)} error={errors.references[idx]?.year} />
+                                        </div>
+                                    )}
+
+                                    {ref.type === 'website' && (
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <InputField required label="Page Title" value={ref.title || ''} onChange={v => updateReference(ref.id, 'title', v)} error={errors.references[idx]?.title} />
+                                            <InputField required label="URL" value={ref.url || ''} onChange={v => updateReference(ref.id, 'url', v)} error={errors.references[idx]?.url} />
+                                            <InputField label="Access Date" value={ref.accessDate || ''} onChange={v => updateReference(ref.id, 'accessDate', v)} placeholder="August 2023" />
+                                        </div>
+                                    )}
+
+                                    {ref.type === 'other' && (
+                                        <InputField required label="Manual Reference Text" value={ref.text} onChange={v => updateReference(ref.id, 'text', v)} error={errors.references[idx]?.text} />
+                                    )}
+
+                                    {ref.type !== 'other' && (
+                                        <div className="mt-2 p-2 bg-slate-50 dark:bg-slate-800/50 rounded border border-slate-100 dark:border-slate-800 animate-in fade-in slide-in-from-top-1 duration-300">
+                                            <div className="flex items-center justify-between mb-1">
+                                                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Formatted Preview</span>
+                                                <span className="text-[8px] px-1 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-sm font-bold uppercase">IEEE Style</span>
+                                            </div>
+                                            <div className="text-[11px] text-slate-600 dark:text-slate-400 italic leading-relaxed">{ref.text || "Enter details to see formatted reference..."}</div>
+                                        </div>
+                                    )}
+                                </EntryWrapper>
                             ))}
                         </section>
                     </div>

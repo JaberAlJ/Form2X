@@ -25,9 +25,23 @@ export interface Equation {
     latex: string;
 }
 
+export type ReferenceType = 'publication' | 'book' | 'website' | 'other';
+
 export interface Reference {
     id: string;
+    type: ReferenceType;
     text: string;
+    title?: string;
+    authors?: string;
+    journal?: string;
+    volume?: string;
+    issue?: string;
+    pages?: string;
+    year?: string;
+    publisher?: string;
+    url?: string;
+    doi?: string;
+    accessDate?: string;
 }
 
 export interface ResearchSection {
