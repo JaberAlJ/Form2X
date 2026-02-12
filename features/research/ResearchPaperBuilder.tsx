@@ -47,6 +47,8 @@ import { exportToHtml, exportToJson, printToPdf } from './utils/export';
 import { InputField, ImageUploader, TableEditor } from '@/components/ui/FormFields';
 import { FormSection, EntryWrapper } from '@/components/ui/Containers';
 import { StyleOption } from '@/components/ui/StyleOption';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 // Validation Helpers
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -79,6 +81,9 @@ const ResearchPaperBuilder: React.FC = () => {
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const previewRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [showSampleConfirm, setShowSampleConfirm] = useState(false);
 
     // Avoid hydration mismatch
     useEffect(() => {
@@ -287,7 +292,7 @@ const ResearchPaperBuilder: React.FC = () => {
 
     const performExport = async (type: 'html' | 'json') => {
         if (hasAnyErrors) {
-            alert("Please fix the errors in your paper before exporting.");
+            toast.error("Please fix the errors in your paper before exporting.");
             return;
         }
 
@@ -308,22 +313,21 @@ const ResearchPaperBuilder: React.FC = () => {
         reader.onload = (event) => {
             try {
                 const json = JSON.parse(event.target?.result as string);
-                if (json.title && json.authors) setData(json as PaperData);
-            } catch (err) { alert("Invalid research data."); }
+                if (json.title && json.authors) {
+                    setData(json as PaperData);
+                    toast.success("Research paper imported successfully");
+                }
+            } catch (err) { toast.error("Invalid research data."); }
         };
         reader.readAsText(file);
     };
 
     const handleClear = () => {
-        if (window.confirm("Are you sure you want to clear all fields? This action cannot be undone.")) {
-            setData(EMPTY_PAPER_DATA);
-        }
+        setShowClearConfirm(true);
     };
 
     const handleLoadSample = () => {
-        if (window.confirm("This will replace your current data with sample data. Continue?")) {
-            setData(INITIAL_PAPER_DATA);
-        }
+        setShowSampleConfirm(true);
     };
 
     if (!mounted) {
@@ -720,9 +724,35 @@ const ResearchPaperBuilder: React.FC = () => {
                             <button onClick={() => setShowCitationPicker(null)} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition-colors">Cancel</button>
                         </div>
                     </div>
+                    <ResearchPaperPreview data={data} />
                 </div>
             )}
-        </div>
+
+            <ConfirmDialog
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => {
+                    setData(EMPTY_PAPER_DATA);
+                    toast.success("All fields cleared");
+                }}
+                title="Clear Manuscript"
+                description="Are you sure you want to clear all fields? This action cannot be undone."
+                confirmText="Clear All"
+                variant="destructive"
+            />
+
+            <ConfirmDialog
+                isOpen={showSampleConfirm}
+                onClose={() => setShowSampleConfirm(false)}
+                onConfirm={() => {
+                    setData(INITIAL_PAPER_DATA);
+                    toast.success("Sample manuscript loaded");
+                }}
+                title="Load Sample Paper"
+                description="This will replace your current data with sample data. Continue?"
+                confirmText="Load Sample"
+            />
+        </div >
     );
 };
 

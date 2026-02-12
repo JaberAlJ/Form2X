@@ -51,6 +51,8 @@ import { exportToHtml, exportToJson } from './utils/export';
 import { InputField, BulletPoints } from '@/components/ui/FormFields';
 import { FormSection, EntryWrapper } from '@/components/ui/Containers';
 import { StyleOption } from '@/components/ui/StyleOption';
+import { toast } from 'sonner';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
 // Validation Helpers
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -76,6 +78,9 @@ const ResumeBuilder: React.FC = () => {
     const previewRef = useRef<HTMLDivElement>(null);
     const previewContainerRef = useRef<HTMLDivElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const [showClearConfirm, setShowClearConfirm] = useState(false);
+    const [showSampleConfirm, setShowSampleConfirm] = useState(false);
 
     // Avoid hydration mismatch
     useEffect(() => {
@@ -356,12 +361,13 @@ const ResumeBuilder: React.FC = () => {
                 const json = JSON.parse(event.target?.result as string);
                 if (json.header && json.style) {
                     setData(json as ResumeData);
+                    toast.success("Resume imported successfully");
                 } else {
-                    alert("Invalid resume data format.");
+                    toast.error("Invalid resume data format.");
                 }
             } catch (err) {
                 console.error("Failed to parse JSON", err);
-                alert("Failed to import: Invalid JSON file.");
+                toast.error("Failed to import: Invalid JSON file.");
             }
         };
         reader.readAsText(file);
@@ -369,20 +375,16 @@ const ResumeBuilder: React.FC = () => {
     };
 
     const handleClear = () => {
-        if (window.confirm("Are you sure you want to clear all fields? This action cannot be undone.")) {
-            setData(EMPTY_RESUME_DATA);
-        }
+        setShowClearConfirm(true);
     };
 
     const handleLoadSample = () => {
-        if (window.confirm("This will replace your current data with sample data. Continue?")) {
-            setData(INITIAL_RESUME_DATA);
-        }
+        setShowSampleConfirm(true);
     };
 
     const performExport = async (type: 'html' | 'json') => {
         if (hasAnyErrors) {
-            alert("Please fix the errors in your resume before exporting.");
+            toast.error("Please fix the errors in your resume before exporting.");
             return;
         }
 
@@ -868,7 +870,32 @@ const ResumeBuilder: React.FC = () => {
                     {activeTab === 'edit' ? 'Preview' : 'Edit'}
                 </button>
             </div>
-        </div >
+
+            <ConfirmDialog
+                isOpen={showClearConfirm}
+                onClose={() => setShowClearConfirm(false)}
+                onConfirm={() => {
+                    setData(EMPTY_RESUME_DATA);
+                    toast.success("All fields cleared");
+                }}
+                title="Clear All Fields"
+                description="Are you sure you want to clear all fields? This action cannot be undone."
+                confirmText="Clear All"
+                variant="destructive"
+            />
+
+            <ConfirmDialog
+                isOpen={showSampleConfirm}
+                onClose={() => setShowSampleConfirm(false)}
+                onConfirm={() => {
+                    setData(INITIAL_RESUME_DATA);
+                    toast.success("Sample data loaded");
+                }}
+                title="Load Sample Data"
+                description="This will replace your current data with sample data. Continue?"
+                confirmText="Load Sample"
+            />
+        </div>
     );
 };
 
