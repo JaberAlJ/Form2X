@@ -12,6 +12,12 @@ const ResumePreview: React.FC<Props> = ({ data }) => {
         certifications, leadership, honors, publications, volunteer, style
     } = data;
 
+    /**
+     * formatDate Utility
+     * Converts YYYY-MM-DD strings to "MMM YYYY" (e.g., "Jan 2024").
+     * Handles "Present" for current roles.
+     * Provides a clean, standard look for ATS optimization.
+     */
     const formatDate = (dateStr: string) => {
         if (!dateStr) return '';
         if (dateStr.toLowerCase() === 'present') return 'Present';
@@ -30,6 +36,11 @@ const ResumePreview: React.FC<Props> = ({ data }) => {
         return dateStr;
     };
 
+    /**
+     * Section Dispatcher
+     * Dynamically renders sections based on the 'type' and 'enabledSections' state.
+     * Applies styling tokens (bullet style, header emphasis).
+     */
     const renderSection = (type: SectionType) => {
         if (!enabledSections[type]) return null;
 
@@ -217,6 +228,10 @@ const ResumePreview: React.FC<Props> = ({ data }) => {
         }
     };
 
+    /**
+     * URL Normalization
+     * Ensures all links are clickable and properly formatted for contact info.
+     */
     const formatUrl = (url: string) => {
         if (!url) return '';
         return url.startsWith('http') ? url : `https://${url}`;
@@ -234,6 +249,11 @@ const ResumePreview: React.FC<Props> = ({ data }) => {
     return (
         <div id="resume-container" className="resume-wrapper">
             <style>{`
+        /**
+         * Resume Core Layout
+         * 816px x 1056px = US Letter (8.5" x 11") at 96 DPI.
+         * Print Optimization: Uses @media print to hide web-only UI and force A4/Letter dimensions.
+         */
         .resume-wrapper {
           width: 816px; /* 8.5in at 96dpi */
           min-height: 1056px; /* 11in at 96dpi */

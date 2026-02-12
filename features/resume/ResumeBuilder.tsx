@@ -56,7 +56,11 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
 import { PersistenceIndicator } from '@/components/ui/PersistenceIndicator';
 
-// Validation Helpers
+/**
+ * Validation Helpers
+ * validateEmail: Ensures correct email format.
+ * validateUrl: Sanitizes and validates URLs (GitHub, LinkedIn, etc.).
+ */
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 const validateUrl = (url: string) => {
     if (!url) return true;
@@ -68,6 +72,12 @@ const validateUrl = (url: string) => {
 };
 
 const ResumeBuilder: React.FC = () => {
+    /**
+ * useFormPersistence handles:
+ * 1. Loading resume data from localStorage on mount.
+ * 2. Auto-saving data to localStorage whenever 'data' changes.
+ * 3. Syncing the persistence 'status' for the UI indicator.
+ */
     const { data, saveData: setData, clearData, status } = useFormPersistence<ResumeData>('resume-data', INITIAL_RESUME_DATA);
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
     const [sidebarTab, setSidebarTab] = useState<'content' | 'layout' | 'styles'>('content');
@@ -84,13 +94,18 @@ const ResumeBuilder: React.FC = () => {
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showSampleConfirm, setShowSampleConfirm] = useState(false);
 
-    // Avoid hydration mismatch
+    // Avoid hydration mismatch by waiting for client-side mounting
     useEffect(() => {
         setMounted(true);
     }, []);
 
     const isDarkMode = resolvedTheme === 'dark';
 
+    /**
+     * Preview Pane Lifecycle
+     * 1. Handles dynamic zoom scaling based on container width.
+     * 2. Uses MutationObserver to recalculate height for accurate multi-page guides.
+     */
     useEffect(() => {
         const handleResize = () => {
             if (previewContainerRef.current) {
@@ -126,6 +141,11 @@ const ResumeBuilder: React.FC = () => {
         };
     }, [activeTab, data]);
 
+    /**
+     * Form Validation Logic
+     * Computes a comprehensive 'errors' object for all resume sections (Education, Experience, etc.).
+     * This triggers UI validation states (red borders, alerts).
+     */
     const errors = useMemo(() => {
         const e: any = {
             header: {},
@@ -205,6 +225,9 @@ const ResumeBuilder: React.FC = () => {
         return e;
     }, [data]);
 
+    /**
+     * Global error check to block exporting invalid resumes.
+     */
     const hasAnyErrors = useMemo(() => {
         const check = (obj: any): boolean => {
             if (typeof obj === 'string') return obj !== "";
@@ -260,6 +283,11 @@ const ResumeBuilder: React.FC = () => {
         }));
     };
 
+    /**
+     * Layout Management
+     * sectionOrder: Determines the vertical sequence of sections (Experience vs Projects first).
+     * moveSection: Updates the array to re-flow the PDF/HTML output.
+     */
     const moveSection = (index: number, direction: 'up' | 'down') => {
         const newOrder = [...data.sectionOrder];
         const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -280,6 +308,11 @@ const ResumeBuilder: React.FC = () => {
         }));
     };
 
+    /**
+     * Entry Lifecycle Management
+     * addEntry/removeEntry/moveEntry: Generic handlers for list-based resume data.
+     * Supports various schemas (Education vs Experience) using a switch.
+     */
     const addEntry = (section: keyof Omit<ResumeData, 'header' | 'enabledSections' | 'sectionOrder' | 'skills' | 'style'>) => {
         const newId = Math.random().toString(36).substr(2, 9);
         let newEntry: any;
@@ -325,6 +358,10 @@ const ResumeBuilder: React.FC = () => {
         setData(prev => ({ ...prev, [section]: (prev[section] as any[]).map(item => item.id === entryId ? { ...item, bullets: item.bullets.filter((_: any, i: number) => i !== bulletIndex) } : item) }));
     };
 
+    /**
+     * Bullet Reordering
+     * moveBullet: Swaps bullet points within an entry.
+     */
     const moveBullet = (section: 'experience' | 'projects' | 'leadership' | 'volunteer', entryId: string, index: number, direction: 'up' | 'down') => {
         setData(prev => ({
             ...prev,
@@ -340,6 +377,10 @@ const ResumeBuilder: React.FC = () => {
         }));
     };
 
+    /**
+     * Skill Management
+     * Handles categorized skill sets (e.g., "Languages", "Frameworks").
+     */
     const addSkillCategory = () => {
         const newId = Math.random().toString(36).substr(2, 9);
         setData(prev => ({ ...prev, skills: [...prev.skills, { id: newId, label: '', skills: '' }] }));
@@ -531,7 +572,7 @@ const ResumeBuilder: React.FC = () => {
                     <div className="flex-1 overflow-y-auto p-6 bg-slate-50/30 dark:bg-slate-900/50 space-y-8 transition-colors">
                         <div>
                             <div className="flex items-center gap-2 mb-4"><Palette className="w-4 h-4 text-blue-600" /><h2 className="text-sm font-bold text-slate-700 dark:text-slate-300 uppercase tracking-widest">Global Styles</h2></div>
-                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-6 bg-blue-50/50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-900/30">"These style options are optimized for Applicant Tracking Systems (ATS)."</p>
+                            <p className="text-[11px] text-slate-500 dark:text-slate-400 mb-6 bg-blue-50/50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100/50 dark:border-blue-900/30">&quot;These style options are optimized for Applicant Tracking Systems (ATS).&quot;</p>
 
                             <div className="space-y-6">
                                 <StyleOption label="Font Family" icon={<Type className="w-3.5 h-3.5" />}>
@@ -889,10 +930,7 @@ const ResumeBuilder: React.FC = () => {
             <ConfirmDialog
                 isOpen={showClearConfirm}
                 onClose={() => setShowClearConfirm(false)}
-                onConfirm={() => {
-                    setData(EMPTY_RESUME_DATA);
-                    toast.success("All fields cleared");
-                }}
+                onConfirm={handleClearConfirmed}
                 title="Clear All Fields"
                 description="Are you sure you want to clear all fields? This action cannot be undone."
                 confirmText="Clear All"
