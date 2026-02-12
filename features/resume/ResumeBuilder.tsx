@@ -53,6 +53,8 @@ import { FormSection, EntryWrapper } from '@/components/ui/Containers';
 import { StyleOption } from '@/components/ui/StyleOption';
 import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { useFormPersistence } from '@/hooks/useFormPersistence';
+import { PersistenceIndicator } from '@/components/ui/PersistenceIndicator';
 
 // Validation Helpers
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
@@ -66,7 +68,7 @@ const validateUrl = (url: string) => {
 };
 
 const ResumeBuilder: React.FC = () => {
-    const [data, setData] = useState<ResumeData>(INITIAL_RESUME_DATA);
+    const { data, saveData: setData, clearData, status } = useFormPersistence<ResumeData>('resume-data', INITIAL_RESUME_DATA);
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
     const [sidebarTab, setSidebarTab] = useState<'content' | 'layout' | 'styles'>('content');
     const [zoom, setZoom] = useState(0.8);
@@ -378,6 +380,12 @@ const ResumeBuilder: React.FC = () => {
         setShowClearConfirm(true);
     };
 
+    const handleClearConfirmed = () => {
+        clearData();
+        setShowClearConfirm(false);
+        toast.success("All fields cleared");
+    };
+
     const handleLoadSample = () => {
         setShowSampleConfirm(true);
     };
@@ -477,6 +485,13 @@ const ResumeBuilder: React.FC = () => {
                         </button>
                     </div>
                 </header>
+
+                <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex items-center justify-between transition-colors">
+                    <PersistenceIndicator status={status} />
+                    <div className="flex gap-2 text-[10px] font-bold text-slate-400">
+                        <span>Auto-saving enabled</span>
+                    </div>
+                </div>
 
                 <div className="flex bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0 p-1 transition-colors">
                     <button onClick={() => setSidebarTab('content')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${sidebarTab === 'content' ? 'bg-white dark:bg-slate-800 text-blue-600 shadow-sm' : 'text-slate-500 hover:text-slate-700 dark:text-slate-400'}`}><PenLine className="w-3.5 h-3.5" />Content</button>
