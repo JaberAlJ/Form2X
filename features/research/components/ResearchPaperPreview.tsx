@@ -7,6 +7,10 @@ interface Props {
     data: PaperData;
 }
 
+/**
+ * Replaces citation tags like [cite:r1] with formatted numbers like [1].
+ * Calculates the index based on the reference's position in the references array.
+ */
 const resolveCitations = (text: string, references: Reference[]) => {
     if (!text) return text;
     const regex = /\[cite:([^\]]+)\]/g;
@@ -16,6 +20,10 @@ const resolveCitations = (text: string, references: Reference[]) => {
     });
 };
 
+/**
+ * Component to render text containing LaTeX (surrounded by $) and IEEE Citations.
+ * Uses KaTeX for mathematical notation.
+ */
 const LatexText: React.FC<{ text: string, references?: Reference[] }> = ({ text, references = [] }) => {
     const processedText = useMemo(() => resolveCitations(text, references), [text, references]);
 
@@ -64,6 +72,11 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
 
     const A4_HEIGHT_PX = 1122.5; // Approx 297mm at 96dpi
 
+    /**
+     * Page Height Management
+     * Calculates the total number of pages based on the scroll height.
+     * This is used to render the red 'Page Cut Line' guides for users.
+     */
     useEffect(() => {
         const updatePageCount = () => {
             if (containerRef.current) {
@@ -90,6 +103,12 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
         return roman;
     };
 
+    /**
+     * IEEE Heading Prefix Logic
+     * Level 1: Roman Numerals (I., II., III.)
+     * Level 2: Alphabetic (A., B., C.)
+     * Level 3: Numeric with parenthesis (1), 2), 3))
+     */
     const getHeadingPrefix = (section: ResearchSection, allSections: ResearchSection[]) => {
         const idx = allSections.indexOf(section);
         if (section.level === 1) {
@@ -172,7 +191,11 @@ const ResearchPaperPreview: React.FC<Props> = ({ data }) => {
           display: block;
         }
 
-        /* Strict Heading & Group Logic */
+        /* 
+          Strict Heading & Group Logic
+          Prevents headings from being isolated at the bottom of a page/column
+          by ensuring they stay with the following content block.
+        */
         .strict-group {
           break-inside: avoid;
           display: block;

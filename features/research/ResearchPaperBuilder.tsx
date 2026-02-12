@@ -52,9 +52,15 @@ import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
 import { PersistenceIndicator } from '@/components/ui/PersistenceIndicator';
 
-// Validation Helpers
+/**
+ * Helper to validate email formats for author entries.
+ */
 const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
+/**
+ * Formats a reference object into an IEEE-compliant string for preview and export.
+ * Supports publications, books, websites, and manual text.
+ */
 const formatReference = (ref: Reference): string => {
     switch (ref.type) {
         case 'publication':
@@ -71,6 +77,12 @@ const formatReference = (ref: Reference): string => {
 };
 
 const ResearchPaperBuilder: React.FC = () => {
+    /**
+     * useFormPersistence handles:
+     * 1. Loading data from localStorage on mount.
+     * 2. Auto-saving data to localStorage whenever 'data' changes.
+     * 3. Syncing the persistence 'status' for the UI indicator.
+     */
     const { data, saveData: setData, clearData, status } = useFormPersistence<PaperData>('research-paper-data', INITIAL_PAPER_DATA);
     const [activeTab, setActiveTab] = useState<'edit' | 'preview'>('edit');
     const [sidebarTab, setSidebarTab] = useState<'content' | 'settings'>('content');
@@ -87,13 +99,17 @@ const ResearchPaperBuilder: React.FC = () => {
     const [showClearConfirm, setShowClearConfirm] = useState(false);
     const [showSampleConfirm, setShowSampleConfirm] = useState(false);
 
-    // Avoid hydration mismatch
+    // Avoid hydration mismatch by waiting for client-side mounting
     useEffect(() => {
         setMounted(true);
     }, []);
 
     const isDarkMode = resolvedTheme === 'dark';
 
+    /**
+     * Dynamic zoom calculation for the preview pane.
+     * Adjusts the scale based on container width to maintain visibility on different screens.
+     */
     useEffect(() => {
         const handleResize = () => {
             if (previewContainerRef.current) {
@@ -109,6 +125,11 @@ const ResearchPaperBuilder: React.FC = () => {
         return () => window.removeEventListener('resize', handleResize);
     }, [activeTab]);
 
+    /**
+     * Form Validation Logic
+     * Computes an 'errors' object based on the current state of 'data'.
+     * This is used to display red borders and the 'Review Required' alert.
+     */
     const errors = useMemo(() => {
         const e: any = {
             title: '',
@@ -154,6 +175,9 @@ const ResearchPaperBuilder: React.FC = () => {
         return e;
     }, [data]);
 
+    /**
+     * Global error check to enable/disable export functionality.
+     */
     const hasAnyErrors = useMemo(() => {
         const check = (obj: any): boolean => {
             if (typeof obj === 'string') return obj !== "";
@@ -168,6 +192,10 @@ const ResearchPaperBuilder: React.FC = () => {
         setData(prev => ({ ...prev, [field]: value }));
     };
 
+    /**
+     * Author Management
+     * Handles adding, updating, removing, and reordering authors.
+     */
     const addAuthor = () => {
         const newAuthor: Author = { id: Math.random().toString(36).substr(2, 9), name: '', dept: '', org: '', location: '', email: '' };
         updateField('authors', [...data.authors, newAuthor]);
@@ -212,6 +240,11 @@ const ResearchPaperBuilder: React.FC = () => {
         }
     };
 
+    /**
+     * Reference Management
+     * References are unique because their 'text' (the IEEE string) is automatically 
+     * recomputed whenever specialized fields (title, journal, etc.) change.
+     */
     const addReference = () => {
         const newRef: Reference = {
             id: `r${data.references.length + 1}`,
@@ -279,6 +312,10 @@ const ResearchPaperBuilder: React.FC = () => {
         setShowCitationPicker(null);
     };
 
+    /**
+     * Element Management
+     * Adds figures, tables, equations, or bullets to a specific section.
+     */
     const addElement = (sectionId: string, type: 'figures' | 'tables' | 'equations' | 'bulletPoints') => {
         const section = data.sections.find(s => s.id === sectionId);
         if (!section) return;
