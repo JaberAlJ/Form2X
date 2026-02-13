@@ -23,7 +23,7 @@
 
 ### 🚀 Platform & UX
 
-- [ ] **Direct PDF Export**: Implement client-side PDF generation (e.g., `jspdf`) to bypass browser print dialog limitations.
+- [x] ~~**Direct PDF Export**: Implement client-side PDF generation (e.g., `jspdf`) to bypass browser print dialog limitations.~~ *`This can be introduced later, html2pdf.js is not working as expected`*
 - [ ] **User Onboarding**: Add a guided tutorial for first-time visitors using a library like `driver.js`.
 - [x] **Performance**: Optimize KaTeX loading and form state management for smoother editing.
 
