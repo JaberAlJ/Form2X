@@ -369,7 +369,7 @@ const ResearchPaperBuilder: React.FC = () => {
     };
 
     const handleClearConfirmed = () => {
-        clearData();
+        setData(EMPTY_PAPER_DATA);
         setShowClearConfirm(false);
         toast.success("All fields cleared");
     };

@@ -422,7 +422,7 @@ const ResumeBuilder: React.FC = () => {
     };
 
     const handleClearConfirmed = () => {
-        clearData();
+        setData(EMPTY_RESUME_DATA);
         setShowClearConfirm(false);
         toast.success("All fields cleared");
     };
