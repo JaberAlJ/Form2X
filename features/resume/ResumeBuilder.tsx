@@ -475,7 +475,7 @@ const ResumeBuilder: React.FC = () => {
                         >
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -499,7 +499,7 @@ const ResumeBuilder: React.FC = () => {
                         >
                             <FileJson className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button
                             onClick={handleClear}
                             className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
@@ -514,7 +514,7 @@ const ResumeBuilder: React.FC = () => {
                         >
                             <Beaker className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button
                             disabled={isExporting}
                             onClick={() => performExport('html')}

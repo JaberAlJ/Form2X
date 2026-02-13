@@ -396,7 +396,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <button onClick={() => setTheme(isDarkMode ? 'light' : 'dark')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <input type="file" ref={fileInputRef} onChange={handleImportJson} className="hidden" accept=".json" />
                         <button onClick={() => fileInputRef.current?.click()} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             <Upload className="w-4 h-4" />
@@ -404,7 +404,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         <button onClick={() => performExport('json')} className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition-colors text-slate-600 dark:text-slate-400">
                             <FileJson className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button
                             onClick={handleClear}
                             className="p-2 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors text-slate-400 hover:text-red-500"
@@ -419,7 +419,7 @@ const ResearchPaperBuilder: React.FC = () => {
                         >
                             <Beaker className="w-4 h-4" />
                         </button>
-                        <div className="w-[1px] h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
+                        <div className="w-px h-4 bg-slate-200 dark:bg-slate-600 mx-1"></div>
                         <button onClick={() => performExport('html')} className="px-3 py-1.5 bg-indigo-600 text-white rounded-md text-sm font-medium hover:bg-indigo-700 shadow-sm flex items-center gap-2"><DownloadIcon className="w-4 h-4" />HTML</button>
                     </div>
                 </header>
@@ -806,7 +806,7 @@ const ResearchPaperBuilder: React.FC = () => {
 
             {/* Citation Picker Modal */}
             {showCitationPicker && (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
+                <div className="fixed inset-0 z-100 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white dark:bg-slate-900 w-full max-w-md rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800">
                         <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-800/50">
                             <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
