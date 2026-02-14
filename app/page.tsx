@@ -64,7 +64,7 @@ export default function LandingPage() {
           </div>
 
           <h1 className="text-6xl md:text-8xl font-black text-slate-900 dark:text-white tracking-tighter animate-in fade-in slide-in-from-bottom-8 duration-700 delay-100">
-            Form2<span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">X</span>
+            Form2<span className="bg-linear-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">X</span>
           </h1>
 
           <p className="max-w-2xl mx-auto text-lg md:text-xl text-slate-500 dark:text-slate-400 leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-700 delay-200">
@@ -87,9 +87,9 @@ export default function LandingPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {/* Form2Resume Card */}
           <Link id="form2resume-card" href="/resume" className="group relative block animate-in fade-in slide-in-from-left-8 duration-1000 delay-400">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-blue-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:shadow-blue-500/50 group-hover:border-blue-500/50 transition-all duration-500 overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 duration-700">
                 <FileText className="w-32 h-32" />
               </div>
 
@@ -110,9 +110,9 @@ export default function LandingPage() {
 
           {/* Form2Research Card */}
           <Link id="form2research-card" href="/research" className="group relative block animate-in fade-in slide-in-from-right-8 duration-1000 delay-500">
-            <div className="absolute inset-0 bg-gradient-to-br from-indigo-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className="absolute inset-0 bg-linear-to-br from-indigo-600/20 to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
             <div className="relative h-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-8 shadow-sm group-hover:shadow-2xl group-hover:shadow-indigo-500/50 group-hover:border-indigo-500/50 transition-all duration-500 overflow-hidden">
-              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 transition-transform duration-700">
+              <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity translate-x-4 -translate-y-4 group-hover:translate-x-0 group-hover:translate-y-0 duration-700">
                 <BookOpen className="w-32 h-32" />
               </div>
 
