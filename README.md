@@ -26,6 +26,30 @@ Form2X currently provides two specialized builders:
 
 ---
 
+## ✨ Features
+
+### 🎓 User Onboarding
+
+* **Guided Tour**: First-time visitors are greeted with an interactive tour powered by [driver.js](https://driverjs.com/)
+* **Smart Persistence**: The tour automatically remembers completion status using localStorage
+* **Beautiful Design**: Custom-styled tour popovers that match Form2X's design system with full light/dark mode support
+* **Manual Trigger**: Users can restart the tour anytime via the help button
+
+### 💾 Data Persistence
+
+* **Auto-Save**: All form progress is automatically saved to localStorage
+* **No Data Loss**: Your work is preserved even if you accidentally close the browser
+* **Status Indicators**: Visual "Saved" / "Syncing" feedback in the header
+
+### 🎨 Premium UI/UX
+
+* **Dark Mode**: Seamless theme switching with system preference detection
+* **Responsive Design**: Optimized for all screen sizes
+* **Smooth Animations**: Micro-interactions and transitions for enhanced user experience
+* **Modern Aesthetics**: Glassmorphism effects, vibrant gradients, and premium styling
+
+---
+
 ## 🛠 Tech Stack
 
 * **Framework**: [Next.js 15+](https://nextjs.org/) (App Router)

@@ -53,6 +53,7 @@ import { toast } from 'sonner';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useFormPersistence } from '@/hooks/useFormPersistence';
 import { PersistenceIndicator } from '@/components/ui/PersistenceIndicator';
+import { FloatingHelpButton } from '@/components/floating-help-button';
 
 /**
  * Helper to validate email formats for author entries.
@@ -387,7 +388,7 @@ const ResearchPaperBuilder: React.FC = () => {
     return (
         <div className="h-screen flex flex-col md:flex-row overflow-hidden bg-slate-50 dark:bg-slate-950 transition-colors">
             <aside className={`fixed inset-y-0 left-0 z-40 w-full md:relative flex flex-col h-screen border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 transition-all ${activeTab === 'preview' ? '-translate-x-full md:w-0 opacity-0 invisible' : 'translate-x-0 lg:w-5/12 xl:w-1/3 opacity-100 visible'}`}>
-                <header className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
+                <header id="research-header" className="p-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between shrink-0">
                     <div className="flex items-center gap-2">
                         <div className="p-2 bg-indigo-600 rounded-lg"><BookOpen className="w-5 h-5 text-white" /></div>
                         <h1 className="font-bold text-slate-800 dark:text-slate-100 tracking-tight transition-colors">Form2<span className="text-indigo-600">Research</span></h1>
@@ -431,7 +432,7 @@ const ResearchPaperBuilder: React.FC = () => {
                     </div>
                 </div>
 
-                <div className="flex bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0 p-1">
+                <div id="research-tabs" className="flex bg-slate-50 dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shrink-0 p-1">
                     <button onClick={() => setSidebarTab('content')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${sidebarTab === 'content' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500'}`}><LayoutTemplate className="w-3.5 h-3.5" />Manuscript</button>
                     <button onClick={() => setSidebarTab('settings')} className={`flex-1 flex items-center justify-center gap-2 py-2 text-xs font-bold rounded-md transition-all ${sidebarTab === 'settings' ? 'bg-white dark:bg-slate-800 text-indigo-600 shadow-sm' : 'text-slate-500'}`}><Settings2 className="w-3.5 h-3.5" />Formatting</button>
                 </div>
@@ -471,7 +472,7 @@ const ResearchPaperBuilder: React.FC = () => {
                                 </div>
                             </div>
                         )}
-                        <section className="space-y-4">
+                        <section id="research-front-matter" className="space-y-4">
                             <div className="flex items-center gap-2 border-b border-indigo-100 dark:border-indigo-900 pb-2"><Heading1 className="w-5 h-5 text-indigo-600" /><h2 className="font-bold text-slate-800 dark:text-slate-200">Front Matter</h2></div>
                             <InputField required label="Paper Title" value={data.title} onChange={v => updateField('title', v)} placeholder="Full technical title..." error={errors.title} />
                             <div className="space-y-4">
@@ -541,159 +542,161 @@ const ResearchPaperBuilder: React.FC = () => {
                             <InputField label="Keywords" value={data.keywords} onChange={v => updateField('keywords', v)} placeholder="Separated by commas..." />
                         </section>
 
-                        <FormSection icon={<LayoutTemplate className="w-5 h-5 text-indigo-600" />} title="Sections" onAdd={addSection}>
-                            {data.sections.map((section, idx) => (
-                                <EntryWrapper key={section.id} onRemove={() => removeSection(section.id)} onMoveUp={idx > 0 ? () => moveSection(idx, 'up') : undefined} onMoveDown={idx < data.sections.length - 1 ? () => moveSection(idx, 'down') : undefined}>
-                                    <div className="grid grid-cols-4 gap-2">
-                                        <div className="col-span-3"><InputField required label="Section Title" value={section.title} onChange={v => updateSection(section.id, 'title', v)} error={errors.sections[idx]?.title} /></div>
+                        <div id="research-sections">
+                            <FormSection icon={<LayoutTemplate className="w-5 h-5 text-indigo-600" />} title="Sections" onAdd={addSection}>
+                                {data.sections.map((section, idx) => (
+                                    <EntryWrapper key={section.id} onRemove={() => removeSection(section.id)} onMoveUp={idx > 0 ? () => moveSection(idx, 'up') : undefined} onMoveDown={idx < data.sections.length - 1 ? () => moveSection(idx, 'down') : undefined}>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            <div className="col-span-3"><InputField required label="Section Title" value={section.title} onChange={v => updateSection(section.id, 'title', v)} error={errors.sections[idx]?.title} /></div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Level</label>
+                                                <select value={section.level} onChange={e => updateSection(section.id, 'level', parseInt(e.target.value))} className="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-200 rounded-md text-sm outline-none">
+                                                    <option value={1}>I.</option>
+                                                    <option value={2}>A.</option>
+                                                    <option value={3}>1)</option>
+                                                </select>
+                                            </div>
+                                        </div>
                                         <div className="space-y-1">
-                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Level</label>
-                                            <select value={section.level} onChange={e => updateSection(section.id, 'level', parseInt(e.target.value))} className="w-full px-2 py-2 bg-white dark:bg-slate-800 border border-slate-200 rounded-md text-sm outline-none">
-                                                <option value={1}>I.</option>
-                                                <option value={2}>A.</option>
-                                                <option value={3}>1)</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div className="space-y-1">
-                                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Content</label>
-                                        <div className="relative group/textarea">
-                                            <textarea
-                                                value={section.content}
-                                                onChange={e => {
-                                                    updateSection(section.id, 'content', e.target.value);
-                                                    e.target.style.height = 'inherit';
-                                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                                }}
-                                                onFocus={e => {
-                                                    e.target.style.height = 'inherit';
-                                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                                }}
-                                                rows={3}
-                                                className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
-                                            />
-                                            <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover/textarea:opacity-100 transition-all">
-                                                <button
-                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'ref' })}
-                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
-                                                    title="Cite Reference"
-                                                >
-                                                    <Bookmark className="w-3 h-3" /> REF
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'fig' })}
-                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
-                                                    title="Cite Figure"
-                                                >
-                                                    <ImageIcon className="w-3 h-3" /> FIG
-                                                </button>
-                                                <button
-                                                    onClick={() => setShowCitationPicker({ targetId: section.id, type: 'tab' })}
-                                                    className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
-                                                    title="Cite Table"
-                                                >
-                                                    <TableIcon className="w-3 h-3" /> TAB
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
-                                        <button onClick={() => addElement(section.id, 'figures')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><ImageIcon className="w-3 h-3" /> FIGURE</button>
-                                        <button onClick={() => addElement(section.id, 'tables')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><Grid className="w-3 h-3" /> TABLE</button>
-                                        <button onClick={() => addElement(section.id, 'equations')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><span className="text-[10px]">Σ</span> EQUATION</button>
-                                    </div>
-
-                                    {section.figures?.map((fig, fIdx) => (
-                                        <div key={fig.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-bold text-indigo-500 uppercase">Figure {fIdx + 1}</span>
+                                            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Content</label>
+                                            <div className="relative group/textarea">
+                                                <textarea
+                                                    value={section.content}
+                                                    onChange={e => {
+                                                        updateSection(section.id, 'content', e.target.value);
+                                                        e.target.style.height = 'inherit';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    onFocus={e => {
+                                                        e.target.style.height = 'inherit';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    rows={3}
+                                                    className="w-full px-3 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-md text-sm outline-none resize-none transition-all"
+                                                />
+                                                <div className="absolute bottom-2 right-2 flex gap-1 opacity-0 group-hover/textarea:opacity-100 transition-all">
                                                     <button
-                                                        onClick={() => {
-                                                            const tag = `[fig:${fig.id}]`;
-                                                            updateSection(section.id, 'content', section.content + " " + tag);
-                                                        }}
-                                                        className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-600 flex items-center gap-0.5"
+                                                        onClick={() => setShowCitationPicker({ targetId: section.id, type: 'ref' })}
+                                                        className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                        title="Cite Reference"
                                                     >
-                                                        <Plus className="w-2.5 h-2.5" /> CITE
+                                                        <Bookmark className="w-3 h-3" /> REF
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowCitationPicker({ targetId: section.id, type: 'fig' })}
+                                                        className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                        title="Cite Figure"
+                                                    >
+                                                        <ImageIcon className="w-3 h-3" /> FIG
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setShowCitationPicker({ targetId: section.id, type: 'tab' })}
+                                                        className="p-1 px-1.5 bg-white dark:bg-slate-700 hover:bg-indigo-600 dark:hover:bg-indigo-600 hover:text-white dark:hover:text-white text-indigo-600 dark:text-indigo-400 border border-indigo-100 dark:border-indigo-900 rounded flex items-center gap-1 text-[9px] font-bold shadow-sm"
+                                                        title="Cite Table"
+                                                    >
+                                                        <TableIcon className="w-3 h-3" /> TAB
                                                     </button>
                                                 </div>
-                                                <button onClick={() => updateSection(section.id, 'figures', section.figures?.filter(f => f.id !== fig.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
                                             </div>
-                                            <ImageUploader imageData={fig.imageData} onUpload={base64 => {
-                                                const newFigs = [...(section.figures || [])];
-                                                newFigs[fIdx].imageData = base64;
-                                                updateSection(section.id, 'figures', newFigs);
-                                            }} onRemove={() => {
-                                                const newFigs = [...(section.figures || [])];
-                                                newFigs[fIdx].imageData = '';
-                                                updateSection(section.id, 'figures', newFigs);
-                                            }} />
-                                            <InputField label="Caption" value={fig.caption} onChange={v => {
-                                                const newFigs = [...(section.figures || [])];
-                                                newFigs[fIdx].caption = v;
-                                                updateSection(section.id, 'figures', newFigs);
-                                            }} />
                                         </div>
-                                    ))}
 
-                                    {section.tables?.map((tab, tIdx) => (
-                                        <div key={tab.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
-                                            <div className="flex justify-between items-center">
-                                                <div className="flex items-center gap-2">
-                                                    <span className="text-[10px] font-bold text-indigo-500 uppercase">Table {tIdx + 1}</span>
-                                                    <button
-                                                        onClick={() => {
-                                                            const tag = `[tab:${tab.id}]`;
-                                                            updateSection(section.id, 'content', section.content + " " + tag);
-                                                        }}
-                                                        className="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-600 flex items-center gap-0.5"
-                                                    >
-                                                        <Plus className="w-2.5 h-2.5" /> CITE
-                                                    </button>
+                                        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                                            <button onClick={() => addElement(section.id, 'figures')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><ImageIcon className="w-3 h-3" /> FIGURE</button>
+                                            <button onClick={() => addElement(section.id, 'tables')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><Grid className="w-3 h-3" /> TABLE</button>
+                                            <button onClick={() => addElement(section.id, 'equations')} className="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded hover:bg-slate-200 transition-colors flex items-center gap-1"><span className="text-[10px]">Σ</span> EQUATION</button>
+                                        </div>
+
+                                        {section.figures?.map((fig, fIdx) => (
+                                            <div key={fig.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-bold text-indigo-500 uppercase">Figure {fIdx + 1}</span>
+                                                        <button
+                                                            onClick={() => {
+                                                                const tag = `[fig:${fig.id}]`;
+                                                                updateSection(section.id, 'content', section.content + " " + tag);
+                                                            }}
+                                                            className="text-[9px] font-bold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-600 flex items-center gap-0.5"
+                                                        >
+                                                            <Plus className="w-2.5 h-2.5" /> CITE
+                                                        </button>
+                                                    </div>
+                                                    <button onClick={() => updateSection(section.id, 'figures', section.figures?.filter(f => f.id !== fig.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
                                                 </div>
-                                                <button onClick={() => updateSection(section.id, 'tables', section.tables?.filter(t => t.id !== tab.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
+                                                <ImageUploader imageData={fig.imageData} onUpload={base64 => {
+                                                    const newFigs = [...(section.figures || [])];
+                                                    newFigs[fIdx].imageData = base64;
+                                                    updateSection(section.id, 'figures', newFigs);
+                                                }} onRemove={() => {
+                                                    const newFigs = [...(section.figures || [])];
+                                                    newFigs[fIdx].imageData = '';
+                                                    updateSection(section.id, 'figures', newFigs);
+                                                }} />
+                                                <InputField label="Caption" value={fig.caption} onChange={v => {
+                                                    const newFigs = [...(section.figures || [])];
+                                                    newFigs[fIdx].caption = v;
+                                                    updateSection(section.id, 'figures', newFigs);
+                                                }} />
                                             </div>
-                                            <TableEditor rows={tab.rows} onChange={rows => {
-                                                const newTabs = [...(section.tables || [])];
-                                                newTabs[tIdx].rows = rows;
-                                                updateSection(section.id, 'tables', newTabs);
-                                            }} />
-                                            <InputField label="Caption" value={tab.caption} onChange={v => {
-                                                const newTabs = [...(section.tables || [])];
-                                                newTabs[tIdx].caption = v;
-                                                updateSection(section.id, 'tables', newTabs);
-                                            }} />
-                                        </div>
-                                    ))}
+                                        ))}
 
-                                    {section.equations?.map((eq, eIdx) => (
-                                        <div key={eq.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
-                                            <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-indigo-500">EQUATION {eIdx + 1}</span><button onClick={() => updateSection(section.id, 'equations', section.equations?.filter(e => e.id !== eq.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button></div>
-                                            <textarea
-                                                value={eq.latex}
-                                                onChange={e => {
-                                                    const newEqs = [...(section.equations || [])];
-                                                    newEqs[eIdx].latex = e.target.value;
-                                                    updateSection(section.id, 'equations', newEqs);
-                                                    e.target.style.height = 'inherit';
-                                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                                }}
-                                                onFocus={e => {
-                                                    e.target.style.height = 'inherit';
-                                                    e.target.style.height = `${e.target.scrollHeight}px`;
-                                                }}
-                                                placeholder="\mathcal{L} = \sum w_i^2..."
-                                                className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-mono outline-none resize-none transition-all"
-                                            />
-                                        </div>
-                                    ))}
-                                </EntryWrapper>
-                            ))}
-                        </FormSection>
+                                        {section.tables?.map((tab, tIdx) => (
+                                            <div key={tab.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-[10px] font-bold text-indigo-500 uppercase">Table {tIdx + 1}</span>
+                                                        <button
+                                                            onClick={() => {
+                                                                const tag = `[tab:${tab.id}]`;
+                                                                updateSection(section.id, 'content', section.content + " " + tag);
+                                                            }}
+                                                            className="text-[9px] font-bold text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-600 flex items-center gap-0.5"
+                                                        >
+                                                            <Plus className="w-2.5 h-2.5" /> CITE
+                                                        </button>
+                                                    </div>
+                                                    <button onClick={() => updateSection(section.id, 'tables', section.tables?.filter(t => t.id !== tab.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button>
+                                                </div>
+                                                <TableEditor rows={tab.rows} onChange={rows => {
+                                                    const newTabs = [...(section.tables || [])];
+                                                    newTabs[tIdx].rows = rows;
+                                                    updateSection(section.id, 'tables', newTabs);
+                                                }} />
+                                                <InputField label="Caption" value={tab.caption} onChange={v => {
+                                                    const newTabs = [...(section.tables || [])];
+                                                    newTabs[tIdx].caption = v;
+                                                    updateSection(section.id, 'tables', newTabs);
+                                                }} />
+                                            </div>
+                                        ))}
 
-                        <section className="space-y-4">
+                                        {section.equations?.map((eq, eIdx) => (
+                                            <div key={eq.id} className="p-3 bg-white dark:bg-slate-800 border border-indigo-100 dark:border-indigo-900 rounded-lg space-y-2 mt-2">
+                                                <div className="flex justify-between items-center"><span className="text-[10px] font-bold text-indigo-500">EQUATION {eIdx + 1}</span><button onClick={() => updateSection(section.id, 'equations', section.equations?.filter(e => e.id !== eq.id))}><Trash2 className="w-3 h-3 text-slate-300 hover:text-red-500" /></button></div>
+                                                <textarea
+                                                    value={eq.latex}
+                                                    onChange={e => {
+                                                        const newEqs = [...(section.equations || [])];
+                                                        newEqs[eIdx].latex = e.target.value;
+                                                        updateSection(section.id, 'equations', newEqs);
+                                                        e.target.style.height = 'inherit';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    onFocus={e => {
+                                                        e.target.style.height = 'inherit';
+                                                        e.target.style.height = `${e.target.scrollHeight}px`;
+                                                    }}
+                                                    placeholder="\mathcal{L} = \sum w_i^2..."
+                                                    className="w-full px-3 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-mono outline-none resize-none transition-all"
+                                                />
+                                            </div>
+                                        ))}
+                                    </EntryWrapper>
+                                ))}
+                            </FormSection>
+                        </div>
+
+                        <section id="research-references" className="space-y-4">
                             <div className="flex items-center justify-between border-b border-indigo-100 dark:border-indigo-900 pb-2"><div className="flex items-center gap-2"><Quote className="w-5 h-5 text-indigo-600" /><h2 className="font-bold text-slate-800 dark:text-slate-200">References</h2></div><button onClick={addReference} className="p-1 hover:bg-indigo-50 rounded transition-colors"><Plus className="w-5 h-5 text-indigo-600" /></button></div>
                             <p className="text-[10px] text-slate-400 italic">Use [cite:r1] in content to link here.</p>
                             {data.references.map((ref, idx) => (
@@ -771,7 +774,7 @@ const ResearchPaperBuilder: React.FC = () => {
                 )}
             </aside>
 
-            <main className={`flex-1 overflow-hidden bg-slate-200/50 dark:bg-slate-950 flex flex-col relative transition-colors ${activeTab === 'edit' ? 'hidden md:flex' : 'flex'}`}>
+            <main id="research-preview" className={`flex-1 overflow-hidden bg-slate-200/50 dark:bg-slate-950 flex flex-col relative transition-colors ${activeTab === 'edit' ? 'hidden md:flex' : 'flex'}`}>
                 <header className="absolute top-4 left-1/2 -translate-x-1/2 flex items-center gap-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur border border-slate-200 dark:border-slate-800 p-2 rounded-full shadow-xl z-20">
                     <div className="flex items-center border-r dark:border-slate-700 pr-2">
                         <button onClick={() => setZoom(z => Math.max(0.3, z - 0.1))} className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors"><ZoomOut className="w-4 h-4" /></button>
@@ -936,6 +939,9 @@ const ResearchPaperBuilder: React.FC = () => {
                 description="This will replace your current data with sample data. Continue?"
                 confirmText="Load Sample"
             />
+
+            {/* Floating Help Button */}
+            <FloatingHelpButton />
         </div >
     );
 };
